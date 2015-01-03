@@ -1,0 +1,13 @@
+<script src="tomomi.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script>
+var scope = new Scope();
+pool(scope);
+function pool(scope) {
+	scope.wait(2000).done(function() {
+		$(box).append(scope.id+" "+new Date()+"<br>");
+		pool(scope)
+	});
+}
+</script>
+<div id="box"></div>
