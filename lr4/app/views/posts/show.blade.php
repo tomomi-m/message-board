@@ -1,0 +1,1 @@
+C:\tomomi-m\home\test\app/views/posts/show.blade.php
