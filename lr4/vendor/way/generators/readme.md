@@ -20,11 +20,10 @@ This Laravel 4 package provides a variety of generators to speed up your develop
 Begin by installing this package through Composer. Edit your project's `composer.json` file to require `way/generators`.
 
 	"require-dev": {
-		"way/generators": "~3.0"
+		"way/generators": "2.*"
 	}
 
-> Version 3 of these generators works with Laravel 4.3. Because the folder structure is different, if you are still on 4.2 or below, instead, pull in `~2.0`.
-
+> Please note that version 2 of this package removed support for a couple of generators, such as `generate:form`. If you'd like to continue using them, stick with version `1.1`.
 
 Next, update Composer from the Terminal:
 
@@ -199,7 +198,7 @@ Nice! A few things to notice here:
 - It parsed the `fields` options, and added those fields.
 - The drop method is smart enough to realize that, in reverse, the table should be dropped entirely.
 
-To declare fields, use a comma+space-separated list of key:value:option sets, where `key` is the name of the field, `value` is the [column type](http://laravel.com/docs/schema#adding-columns), and `option` is a way to specify indexes and such, like `unique` or `nullable`. Here are some examples:
+To declare fields, use a comma+space-separated list of key:value:option sets, where `key` is the name of the field, `value` is the [column type](http://four.laravel.com/docs/schema#adding-columns), and `option` is a way to specify indexes and such, like `unique` or `nullable`. Here are some examples:
 
 - `--fields="first:string, last:string"`
 - `--fields="age:integer, yob:date"`
