@@ -7,7 +7,7 @@
 	href="{{{ Request::getBasePath() }}}/image/site/{{{ $site->id}}}/favicon.ico"
 	type="image/vnd.microsoft.icon" />
 <meta name="viewport" content="width=device-width,minimum-scale=1">
-{{HTML::style('//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css')}}
+{{HTML::style('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css')}}
 {{HTML::style('/css/commadelimited-jQuery-Mobile-Icon/jqm-icon-pack-fa.css')}}
 {{HTML::style('/css/site/page/page.css')}}
 <style>
@@ -15,7 +15,7 @@
 	background: #ffffff url({{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $site->id, $site->background)}}) repeat;
 }
 </style>
-{{HTML::script('//code.jquery.com/jquery-1.10.2.min.js')}}
+{{HTML::script('//code.jquery.com/jquery-1.11.1.min.js')}}
 <script>
 // ダイアログ表示中にリロードされた場合に。
 if( /^#(.*)&ui-state=dialog$/.test( location.hash ) ) {
@@ -30,12 +30,12 @@ if( /^#(.*)$/.test( location.hash ) ) {
 }
 
 $( document ).on( "mobileinit", function() {
-  $.mobile.defaultPageTransition  = "fade";
+  $.mobile.defaultPageTransition  = "none";
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
 });
 </script>
-{{""/*HTML::script('//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js')*/}}
-{{HTML::script('//code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.js')}}
+{{""/*HTML::script('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js')*/}}
+{{HTML::script('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.js')}}
 {{HTML::script('js/jquery.serializejson.min.js')}}
 {{HTML::script('js/jquery-dateFormat.min.js')}}
 {{HTML::script('js/jquery.lazyload.js')}}
