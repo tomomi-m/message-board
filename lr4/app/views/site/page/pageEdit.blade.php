@@ -2,31 +2,31 @@
 @section('header')
 <div name="pageEditHeader" data-role="header" data-position="fixed" >
 	<fieldset name="wysiwyg-toolbar" style="margin:0;position:relative;" data-role="controlgroup" data-type="horizontal" data-inline="true">
-			<button style="width:5em" class="wysiwyg-control" tabindex="-1" data-role="button"  data-icon="picture-o" data-iconpos="notext">&nbsp;</button>
+			<button style="width:5em;height:3.5em" class="wysiwyg-control" tabindex="-1" data-role="button"  data-icon="picture-o" data-iconpos="notext">&nbsp;</button>
 			<input type="file" accept="image/*" class="wysiwyg-control" style="display:none;" data-wysiwyg-command="insertImage" data-role="none"/>
-			<button name="explode-toolbar-btn" style="width:1em" class="wysiwyg-control small-only" data-wysiwyg-command="explode-toolbar" data-role="button" data-icon="angle-double-right" data-iconpos="notext">&nbsp;</button>
-			<button name="implode-toolbar-btn" style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="implode-toolbar" data-role="button" data-icon="angle-double-left" data-iconpos="notext">&nbsp;</button>
+			<button name="explode-toolbar-btn" style="width:2em;height:3.5em" class="wysiwyg-control small-only" data-wysiwyg-command="explode-toolbar" data-role="button" data-icon="angle-double-right" data-iconpos="notext">&nbsp;</button>
+			<button name="implode-toolbar-btn" style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="implode-toolbar" data-role="button" data-icon="angle-double-left" data-iconpos="notext">&nbsp;</button>
 
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 1.5" data-role="button" data-icon="site-font-size-small" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 3" data-role="button" data-icon="site-font-size-normal" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 5" data-role="button" data-icon="site-font-size-large" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 6" data-role="button" data-icon="site-font-size-x-large" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 1.5" data-role="button" data-icon="site-font-size-small" data-iconpos="notext">aaaaaaaaaaaa</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 3" data-role="button" data-icon="site-font-size-normal" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 5" data-role="button" data-icon="site-font-size-large" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="fontSize 6" data-role="button" data-icon="site-font-size-x-large" data-iconpos="notext">&nbsp;</button>
 
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="bold" data-role="button" data-icon="bold" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="underline" data-role="button" data-icon="underline" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="bold" data-role="button" data-icon="bold" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="underline" data-role="button" data-icon="underline" data-iconpos="notext">&nbsp;</button>
 
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="foreColor black" data-role="button" data-icon="site-font-color-black" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="foreColor red" data-role="button" data-icon="site-font-color-red" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="foreColor black" data-role="button" data-icon="site-font-color-black" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="foreColor red" data-role="button" data-icon="site-font-color-red" data-iconpos="notext">&nbsp;</button>
 
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="indent" data-role="button" data-icon="indent" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="outdent" data-role="debuttondent" data-icon="dedent" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="indent" data-role="button" data-icon="indent" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="outdent" data-role="debuttondent" data-icon="dedent" data-iconpos="notext">&nbsp;</button>
 
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="justifyleft" data-role="button" data-icon="align-left" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="justifycenter" data-role="button" data-icon="align-center" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="justifyright" data-role="button" data-icon="align-right" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="justifyleft" data-role="button" data-icon="align-left" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="justifycenter" data-role="button" data-icon="align-center" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="justifyright" data-role="button" data-icon="align-right" data-iconpos="notext">&nbsp;</button>
 
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="insertunorderedlist" data-role="button" data-icon="list-ul" data-iconpos="notext">&nbsp;</button>
-			<button style="width:1em" class="wysiwyg-control large-only" data-wysiwyg-command="insertorderedlist" data-role="button" data-icon="list-ol" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="insertunorderedlist" data-role="button" data-icon="list-ul" data-iconpos="notext">&nbsp;</button>
+			<button style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="insertorderedlist" data-role="button" data-icon="list-ol" data-iconpos="notext">&nbsp;</button>
 
 			<button class="wysiwyg-control" data-wysiwyg-command="autoresize" data-role="button" >ﾘｻｲｽﾞ</button>
 			<button class="wysiwyg-control" data-wysiwyg-command="autoresize2" data-role="button" >ﾘｻｲｽﾞ小</button>
