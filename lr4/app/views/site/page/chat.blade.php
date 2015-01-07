@@ -5,9 +5,9 @@
 		<tr>
 			<td width="10%">
 				<a name="chatExpandInputDetailBtn" onclick="chatExpandInputDetail(this)"
-					style="width: 3em; height: 2em; display: none" data-role="button" data-icon="carat-d" data-iconpos="notext"></a>
+					style="width: 3em; height: 2em; display: none" data-role="button" data-icon="plus" data-iconpos="notext"></a>
 				<a name="chatContractInputDetailBtn" onclick="chatContractInputDetail(this)"
-					style="width: 3em; height: 2em" data-role="button" data-icon="carat-u" data-iconpos="notext"></a>
+					style="width: 3em; height: 2em" data-role="button" data-icon="minus" data-iconpos="notext"></a>
 			</td>
 			<td width="10%" name="emotion">
 @if(!empty($faces))

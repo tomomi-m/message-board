@@ -42,6 +42,8 @@ function pageSetup(event, ui) {
 					var li = $("li", messagesUl);
 					li.text(li.text() + ".");
 					scope.wait(10000).done(query);
+				}).always(function() {
+					tom.$OC(messagesUl, "messagePollProgressDiv").text("");
 				})
 			};
 			query();
@@ -240,7 +242,7 @@ function chatPollMessage(page) {
 	if (scope == null) return; // page destroyed;
 	var messagesUl = tom.$OC(page, "messagesUl");
 	var waitTime = 10000;
-	tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(waitTime / 2000));
+	//tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(waitTime / 2000));
 	scope.wait(waitTime, "chatPollMessage").done(function() {
 		var lastMessageLi = messagesUl.children(":eq(1)");
 		var postData = {};
@@ -251,10 +253,11 @@ function chatPollMessage(page) {
 		scope.simpleAjax(document.URL.replace(/#.*$/, '') + "/get-latest-messages", postData).done(function(result, textStatus, xhr) {
 			chatAppendmessagesUl(page, result, "top", false)
 		}).always(function() {
+			tom.$OC(messagesUl, "messagePollProgressDiv").text("");
 			chatPollMessage(page);
 		})
 	}).progress(function(remainTime) {
-		tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(remainTime / 2000));
+		//tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(remainTime / 2000));
 	});
 }
 
@@ -311,6 +314,7 @@ function postMessage(self) {
 	}).fail(function(result, textStatus, xhr) {
 		messageSubmitBtn.val("err:" + textStatus).button("refresh");
 	}).always(function() {
+		tom.$OC(page, "messagePollProgressDiv").text("");
 		messageSubmitBtn.removeAttr("user-data-submitting");
 		chatPollMessage(page);
 	});

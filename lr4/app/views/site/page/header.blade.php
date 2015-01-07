@@ -1,5 +1,5 @@
 <div name="stdHeader" data-role="header">
-	<h1>{{{$page->title}}}</h1>
+	<h1 style="margin-left:4em; margin-right:6em; overflow:visible; white-space:normal">{{{$page->title}}}</h1>
 	@if ($isEditable) <?php ?>
 	<p name="logedInUserNameP" class="ui-icon-user ui-btn-icon-left"
 		style="display: none; position: absolute; left: 0; top: 0; font-weight: normal; font-size: x-small;"></p>
