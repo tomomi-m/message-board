@@ -40,10 +40,8 @@ function pageSetup(event, ui) {
 					chatPollMessage(page);
 				}).fail(function() {
 					var li = $("li", messagesUl);
-					li.text(li.text() + ".");
+					li.text(li.text() + ".fail retry.");
 					scope.wait(10000).done(query);
-				}).always(function() {
-					tom.$OC(messagesUl, "messagePollProgressDiv").text("");
 				})
 			};
 			query();
@@ -142,38 +140,42 @@ function chatAppendmessagesUl(page, result, direction, doControlGetOlderA) {
 				return;
 		}
 		var li = $("<li style='margin-bottom:1px'/>")
-		var divT = $("<div/>");
-		var divR = $("<div/>");
+		var divT = $("<div class='table'/>");
+		var divR = $("<div class='row'/>");
 		var divC;
 
 		var isOwner = val.userName && (val.userName.toLowerCase() == authedUserName);
-		divC = $("<div class='" + (isOwner ? "chatTimeAndNameBoxModOwner" : "") + " chatTimeAndNameBoxBase' style='float:left; margin:2px'/>");
-		divC.css("chatTimeAndName");
-		var divCC = $("<div style='display:inline;float:" + (isOwner ? "right" : "left") + ";'/>");
-		divCC.append($.format.date(val.updated_at, "HH:mm") + "<br/>" + val.userName);
+		divC = $("<div class='" + (isOwner ? "chatTimeAndNameBoxModOwner" : "") + " chatTimeAndNameBoxBase' style='padding-right:0em;'/>");
+		var divCC = $("<div class='table'/>");
+		var divCCR = $("<div class='row'/>");
+		var divCCCtimeName = $("<div style='padding-right:0em;'/>").append($.format.date(val.updated_at, "HH:mm")).append("<br/>").append(val.userName);
 		var faceImg;
 		if (val.imgFace)
-			faceImg = $("<img/>").attr("src", val.imgFace);
+			faceImg = $("<img style='margin-right:1em;'/>").attr("src", val.imgFace);
 		var emotionImg;
 		if (val.imgEmotion) {
 			emotionImg = $("<img/>").attr("src", val.imgEmotion);
 			if (faceImg) {
 				emotionImg.css({
 					position : "absolute",
-					right : "-1em",
 					bottom : 0,
+					right: 0,
 				});
 			}
 		}
-		var faceEmotionImg = $("<div style='display:inline-block; position:relative; margin-right:1em'>").append(faceImg).append(emotionImg);
+		var divCCCfaceEmotionImg = $("<div style='position:relative;padding-right:0em;'/>").append(faceImg).append(emotionImg);
 		if (isOwner) {
-			divC.append(faceEmotionImg).append(divCC);
+			divCCR.append(divCCCfaceEmotionImg).append(divCCCtimeName);
 		} else {
-			divC.append(divCC).append(faceEmotionImg);
+			divCCR.append(divCCCtimeName).append(divCCCfaceEmotionImg);
 		}
+		divCC.append(divCCR);
+		divC.append(divCC);
 
 		divR.append(divC);
-		divR.append(val.message);
+		divC = $("<div style='padding-right:0em;'/>");
+		divC.append(val.message);
+		divR.append(divC);
 
 		divT.append(divR);
 		li.append(divT);
@@ -192,6 +194,8 @@ function chatAppendmessagesUl(page, result, direction, doControlGetOlderA) {
 	});
 	messagesUl.listview('refresh');
 	messagesUl.attr("user-data-once-refreshed", "true");
+
+	tom.$OC(messagesUl, "messagePollProgressDiv").text("at "+$.format.date(new Date(), "HH:mm:ss"));
 
 	if (doControlGetOlderA) {
 		var messageGetOlderA = tom.$OC(page, "messageGetOlderA");
@@ -252,8 +256,9 @@ function chatPollMessage(page) {
 		tom.$OC(messagesUl, "messagePollProgressDiv").text("⇔");
 		scope.simpleAjax(document.URL.replace(/#.*$/, '') + "/get-latest-messages", postData).done(function(result, textStatus, xhr) {
 			chatAppendmessagesUl(page, result, "top", false)
+		}).fail(function() {
+			tom.$OC(messagesUl, "messagePollProgressDiv").text("fail.retry...");
 		}).always(function() {
-			tom.$OC(messagesUl, "messagePollProgressDiv").text("");
 			chatPollMessage(page);
 		})
 	}).progress(function(remainTime) {
@@ -314,7 +319,6 @@ function postMessage(self) {
 	}).fail(function(result, textStatus, xhr) {
 		messageSubmitBtn.val("err:" + textStatus).button("refresh");
 	}).always(function() {
-		tom.$OC(page, "messagePollProgressDiv").text("");
 		messageSubmitBtn.removeAttr("user-data-submitting");
 		chatPollMessage(page);
 	});
