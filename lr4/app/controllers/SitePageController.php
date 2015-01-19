@@ -258,6 +258,11 @@ class SitePageController extends \BaseController {
 			$page->save ();
 		} else {
 			$page = Page::where ( 'site', $site->id )->where ( 'id', $pageIndex )->first ();
+			if (! $page)
+				App::abort ( 404, "Not exist #PageID" );
+			//backup prev page data
+			DB::insert('insert into pageBaks (id,site,title,background,thumbnail,body,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by) select id,site,title,background,thumbnail,body,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by from pages where site=? and id=?', array($site->id, $pageIndex));
+
 			if (isset ( $data ['parent'] ))
 				$page->parent = $data ['parent'];
 		}
