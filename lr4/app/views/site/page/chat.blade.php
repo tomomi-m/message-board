@@ -3,13 +3,7 @@
 	data-role="fieldcontain" class="ui-hide-label" data-type="horizontal">
 	<table width="100%" border="0">
 		<tr>
-			<td width="10%">
-				<a name="chatExpandInputDetailBtn" onclick="chatExpandInputDetail(this)"
-					style="width: 3em; height: 2em; display: none" data-role="button" data-icon="plus" data-iconpos="notext"></a>
-				<a name="chatContractInputDetailBtn" onclick="chatContractInputDetail(this)"
-					style="width: 3em; height: 2em" data-role="button" data-icon="minus" data-iconpos="notext"></a>
-			</td>
-			<td width="10%" name="emotion">
+			<td width="50px" name="emotion">
 @if(!empty($faces))
 				<a onclick="openFaces(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:4em;">
 					<img
@@ -25,14 +19,18 @@
 						/>
 				</a>
 			</td>
-			<td width="80%">
+			<td >
 				<textarea name="messageTxt" placeholder="内容" data-mini="true" data-inline="true" contenteditable></textarea>
+				<a name="chatExpandInputDetailBtn" onclick="chatExpandInputDetail(this)"
+					style="width: 3em; height: 2em; display: none" data-role="button" data-icon="plus" data-iconpos="notext"></a>
+				<a name="chatContractInputDetailBtn" onclick="chatContractInputDetail(this)"
+					style="width: 3em; height: 2em" data-role="button" data-icon="minus" data-iconpos="notext"></a>
 			</td>
-			<td width="10%"><input type="button" name="messageSubmitBtn" value="送信" data-inline="true" disabled onclick="postMessage(this)">
+			<td width="50px"><input type="button" name="messageSubmitBtn" data-icon="site-ok-submit" data-inline="true" data-mini="true" data-iconpos="bottom" disabled onclick="postMessage(this)" value="送">
 			</td>
 		</tr>
 		<tr name="chatInputDetailSection">
-			<td colspan="4">
+			<td colspan="3">
 				<fieldset style="margin: 0; position: relative;"
 					data-role="controlgroup" data-type="horizontal" data-inline="true">
 					<button style="width: 5em" tabindex="-1" type="button"

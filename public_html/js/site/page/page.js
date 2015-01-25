@@ -313,7 +313,7 @@ function postMessage(self) {
 			messageTxt.val("");
 			messageTxt.textinput("refresh");
 			chatAttachImagesDiv.html("");
-			messageSubmitBtn.val("送信").button("refresh");
+			messageSubmitBtn.val("送").button("refresh");
 			chatAppendmessagesUl(page, result, "top", false)
 		}
 	}).fail(function(result, textStatus, xhr) {
