@@ -33,6 +33,11 @@ $( document ).on( "mobileinit", function() {
   $.mobile.defaultPageTransition  = "none";
   $.mobile.selectmenu.prototype.options.nativeMenu = false;
 });
+$(document).on('click', 'a.anchor', function(e){
+    e.preventDefault();
+    var y = $($(this).attr('href')).offset().top;
+    $('body, html').animate({ scrollTop: y-50 }, 500);
+});
 </script>
 {{""/*HTML::script('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js')*/}}
 {{HTML::script('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.js')}}

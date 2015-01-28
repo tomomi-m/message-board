@@ -283,3 +283,7 @@ img {
 	font-size: x-small;
 	color: rgba(0, 100, 50, 0.7);
 }
+
+.ui-page-theme-a .ui-btn:hover, html .ui-bar-a .ui-btn:hover, html .ui-body-a .ui-btn:hover, html body .ui-group-theme-a .ui-btn:hover, html head+body .ui-btn.ui-btn-a:hover {
+	background-color: #ccccee;
+}

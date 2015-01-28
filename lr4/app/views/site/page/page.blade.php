@@ -1,6 +1,9 @@
 @extends('site.page.base')
 @section('content')
 <div name="pageBodyDiv" class="body">
+@if ($page->hasChat == "Y")
+<div align="right"><a href="#pageContentBottom{{$page->id}}" name="goMessageAnchor" class="anchor" style="display:none; padding:0.4em; padding-left:2em;" data-role="button" data-inline="true" data-mini="true" data-icon="long-arrow-down">メッセージ域へジャンプ</a></div>
+@endif
 <div name="pageContentsDiv">
 {{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->body)}}
 </div>
@@ -16,6 +19,7 @@
 @endif
 </div>
 @if ($page->hasChat == "Y")
+<a id="pageContentBottom{{$page->id}}"></a>
 	@include('site.page.chat')
 @endif
 </div>

@@ -89,6 +89,11 @@ function pageSetup(event, ui) {
 	});
 
 	tom.$OC(page, "pageEditBodyDiv").wysiwyg();
+
+	var goMessageAnchor = tom.$OC(page, "goMessageAnchor");
+	if (goMessageAnchor.length > 0 && messageInputDiv.offset().top > 800) {
+		goMessageAnchor.show();
+	}
 }
 
 function pageDestroy(event, ui) {
