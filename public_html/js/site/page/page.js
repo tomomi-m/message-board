@@ -514,7 +514,7 @@ function openHeaderMenu(event) {
 }
 
 function chatAppendImage(event, self) {
-	appendImageToDiv(event, 120);
+	appendImageToDiv(event, 200);
 }
 
 function chatExpandInputDetail(self) {
