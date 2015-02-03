@@ -423,7 +423,7 @@ function savePageEdit(self) {
 			}
 		}).fail(function(result, textStatus, xhr) {
 			pageEditSaveBtn.val("更新失敗(;; " + textStatus + ":" + result.statusText);
-			pageEditSaveBtn.button("disable").button("refresh");
+			pageEditSaveBtn.button("enable").button("refresh");
 		}).always(function() {
 			pageEditSaveBtn.removeAttr("user-data-submitting");
 		});
