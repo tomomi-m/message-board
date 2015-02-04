@@ -51,10 +51,6 @@ function pageSetup(event, ui) {
 	}
 
 	var messageInputDiv = tom.$OC(page, "messageInputDiv");
-	if (messageInputDiv.length) {
-		var chatExpandInputDetailBtn = tom.$OC(messageInputDiv, "chatExpandInputDetailBtn")[0]
-		chatExpandInputDetail(chatExpandInputDetailBtn);
-	}
 
 	$(":file", page).each(
 			function(i, fileInput) {
@@ -67,8 +63,6 @@ function pageSetup(event, ui) {
 			});
 
 	if (messageInputDiv.length) {
-		var chatContractInputDetailBtn = tom.$OC(messageInputDiv, "chatContractInputDetailBtn")[0]
-		chatContractInputDetail(chatContractInputDetailBtn);
 
 		var messageTxt = tom.$OC(messageInputDiv, "messageTxt");
 		var messageSubmitBtn = tom.$OC(messageInputDiv, "messageSubmitBtn");
@@ -514,23 +508,10 @@ function openHeaderMenu(event) {
 }
 
 function chatAppendImage(event, self) {
-	appendImageToDiv(event, 200);
-}
-
-function chatExpandInputDetail(self) {
-	self = $(self);
-	self.hide();
-	self.next().show();
 	var page = tom.$AP();
-	tom.$OC(page, "chatInputDetailSection").show();
-}
-
-function chatContractInputDetail(self) {
-	self = $(self);
-	self.hide();
-	self.prev().show();
-	var page = tom.$AP();
-	tom.$OC(page, "chatInputDetailSection").hide();
+	var messageInputDiv = tom.$OC(page, "messageInputDiv");
+	var chatAttachImagesDiv = tom.$OC(messageInputDiv, "chatAttachImagesDiv");
+	appendImageToDiv(event, 200, null, chatAttachImagesDiv);
 }
 
 function chatImageClick(event) {
@@ -570,9 +551,9 @@ function profileAppendImage(event, self) {
 	appendImageToDiv(event, 48);
 }
 
-function appendImageToDiv(event, prefferedSize, callback) {
+function appendImageToDiv(event, prefferedSize, callback, imagesDiv) {
 	var fileInp = event.target;
-	var imagesDiv = $(fileInp).next(":first");
+	var imagesDiv = imagesDiv?imagesDiv:$(fileInp).next(":first");
 	$
 			.each(
 					fileInp.files,
@@ -663,8 +644,8 @@ function refreshLatestPagesAndMessages(topN) {
 				a.append(val.title);
 				a.append("<br/>");
 				var divDesc = $("<div>");
-				divDesc.attr("style", "margin-left:1em; font-weight:normal; font-size: small;");
-				divDesc.append(val.userName + " at " + val.updated_at + " " + val.message);
+				divDesc.attr("style", "margin-left:1em; font-weight:normal; font-size: small; overflow:hidden; text-overflow:ellipsis;");
+				divDesc.append( val.updated_at + " " + val.userName + "<br/>" + val.message);
 				a.append(divDesc);
 				li.append(a);
 				ulLatestPagesAndMessages.append(li);
@@ -788,4 +769,61 @@ function popupMovieWindow(src) {
 	popupMovieDiv.popup();
 	popupMovieDiv.show();
 	popupMovieDiv.popup("open");
+}
+
+function showSiteMap() {
+	var siteMapDiv = tom.$APC("siteMapDiv");
+	siteMapDiv.show();
+	tom.$APC("showSiteMapBtn").hide();
+	tom.$APC("hideSiteMapBtn").show();
+
+	if (!allPagesDef) return;
+
+	var rootPage;
+	var pageMap = {};
+	for (var i=0; i< allPagesDef.length; i++) {
+		var curPage = allPagesDef[i];
+		pageMap[curPage.id] = curPage;
+		if (curPage.parent == 0) {
+			rootPage = curPage;
+		}
+	}
+	for (var i=0; i< allPagesDef.length; i++) {
+		var curPage = allPagesDef[i];
+		var parent = pageMap[curPage.parent];
+		if (parent) {
+			if (!parent.childs) parent.childs=[];
+			parent.childs.push(curPage);
+		}
+	}
+	allPagesDef = null;
+
+	var printPage = function(page) {
+		var ret;
+		if (page.isDefault) {
+			ret = $("<div>");
+		} else {
+			var img = $("<img>").attr("src", page.thumb).attr("align", "left");
+			var anc = $("<a data-role='button' data-icon='carat-r' data-iconpos='right'>").attr("href", page.id);
+			anc.append(img).append(page.title).append("<br/>").append($("<span>").css("font-weight", "normal").append("最終更新:" + page.updatedAt + " by " + page.updatedBy + ", 最終メッセージ:" + page.lastMessageAt));
+			ret = $("<li>").append(anc);
+		}
+		if (page.childs) {
+			$.each(page.childs, function(i, page) {
+				var childUl = $("<ul class='ulLatestPagesAndMessages'>");
+				childUl.append(printPage(page));
+				ret.append(childUl);
+			});
+		}
+		return ret;
+	}
+	siteMapDiv.append(printPage(rootPage));
+	siteMapDiv.enhanceWithin();
+}
+
+function hideSiteMap() {
+	var siteMapDiv = tom.$APC("siteMapDiv");
+	siteMapDiv.hide();
+	tom.$APC("showSiteMapBtn").show();
+	tom.$APC("hideSiteMapBtn").hide();
 }

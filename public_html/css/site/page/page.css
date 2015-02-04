@@ -110,12 +110,13 @@ td {
 
 .shadowImages img {
 	xborder: 2px solid #cfcfcf;
-	-moz-border-radius: 4px; /* Firefox */
-	-webkit-border-radius: 4px; /* Safari,Chrome */
-	border-radius: 4px; /* CSS3 */
+	-moz-border-radius: 6px; /* Firefox */
+	-webkit-border-radius: 6px; /* Safari,Chrome */
+	border-radius: 6px; /* CSS3 */
 	-webkit-box-shadow: 0 10px 8px -6px #8d8c8c;
 	-moz-box-shadow: 0 10px 8px -6px #8d8c8c;
 	box-shadow: 0 10px 8px -6px #8d8c8c;
+	margin-bottom: 6px;
 }
 
 .recentryShortCut .ui-collapsible-content {
@@ -287,3 +288,20 @@ img {
 .ui-page-theme-a .ui-btn:hover, html .ui-bar-a .ui-btn:hover, html .ui-body-a .ui-btn:hover, html body .ui-group-theme-a .ui-btn:hover, html head+body .ui-btn.ui-btn-a:hover {
 	background-color: #ccccee;
 }
+
+.siteMap img {
+	max-height: 3em;
+	max-width: 3em;
+}
+.siteMap a {
+	text-align: left;
+	min-height: 3em;
+}
+.siteMap ul {
+	padding-left: 1em;
+	list-style: none;
+}
+.siteMap li {
+	list-style: none;
+}
+

@@ -19,6 +19,11 @@ class SitePageController extends \BaseController {
 
 		$userName = MySession::getUserName ( $site->id );
 
+		$allPages = null;
+		if ($pageIndex == "home") {
+			$allPages = Page::where ( 'site', $site->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
+		}
+
 		return View::make ( 'site.page.' . (($pageIndex == "home") ? "home" : "page"), array (
 				'site' => $site,
 				'page' => $page,
@@ -27,7 +32,8 @@ class SitePageController extends \BaseController {
 				'emotions' => $this->getEmotionCatalog ( $site ),
 				'userName' => $userName,
 				'isEditable' => ($pageIndex == "home") ? false : true,
-				'breadCrumb' => $breadCrumb
+				'breadCrumb' => $breadCrumb,
+				'allPages' => $allPages
 		) );
 	}
 	function getBreadCrumbList($page) {

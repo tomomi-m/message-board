@@ -13,7 +13,7 @@
 	<ul data-role="listview" data-inset="true">
 		@foreach ($childPages as $child)
 		<li>
-			<a href="{{{ $child->id }}}"><img src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $child->thumbnail)}}"/>{{{ $child->title }}}<br><div style="margin-left:1em; font-weight:normal; font-size: small;">{{MyDate::relativeDatetime($child->updated_at?$child->updated_at:$child->created_at)}} 更新<br/>{{$child->lastMessage_at?MyDate::relativeDatetime($child->lastMessage_at):"no"}} メッセージ</div></a>
+			<a href="{{{ $child->id }}}" data-pageId="{{{ $child->id }}}"><img src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $child->thumbnail)}}"/>{{{ $child->title }}}<br><div style="margin-left:1em; font-weight:normal; font-size: small;">{{MyDate::relativeDatetime($child->updated_at?$child->updated_at:$child->created_at)}} 更新<br/>{{$child->lastMessage_at?MyDate::relativeDatetime($child->lastMessage_at):"no"}} メッセージ</div></a>
 		</li>
 		@endforeach
 	</ul>
@@ -32,6 +32,20 @@
 <div style="margin:0 20px 0 20px">
 <ul name="ulLatestPagesAndMessages" class="ulLatestPagesAndMessages" data-role="listview" data-inset="true">
 </ul>
+</div>
+<hr/>
+<button name="showSiteMapBtn" data-icon="chevron-down" data-mini="true" onclick="showSiteMap()">サイトマップを表示</button>
+<button name="hideSiteMapBtn" data-icon="chevron-up" data-mini="true" onclick="hideSiteMap()" style="display: none" >サイトマップを非表示</button>
+<div name="siteMapDiv" class="siteMap">
+	@if(!$allPages->isEmpty())
+	<script>
+		var allPagesDef = [
+		@foreach ($allPages as $page)
+			{ id: {{{$page->id }}}, thumb: "{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->thumbnail)}}", title: "{{ MyStr::jsionEscape($page->title) }}", updatedBy: "{{ MyStr::jsionEscape($page->updated_by) }}", updatedAt: "{{MyDate::relativeDatetime($page->updated_at?$page->updated_at:$page->created_at)}}", lastMessageAt: "{{$page->lastMessage_at?MyDate::relativeDatetime($page->lastMessage_at):'no'}}", parent: {{{$page->parent?$page->parent:0}}}, isDefault: "{{$page->isDefault}}" },
+		@endforeach
+		];
+	</script>
+	@endif
 </div>
 @stop
 
