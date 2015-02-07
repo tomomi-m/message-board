@@ -40,7 +40,7 @@ function pageSetup(event, ui) {
 					chatPollMessage(page);
 				}).fail(function() {
 					var li = $("li", messagesUl);
-					li.text(li.text() + ".fail retry.");
+					li.text(li.text() + ".fail retrying..");
 					scope.wait(10000).done(query);
 				})
 			};
@@ -88,6 +88,8 @@ function pageSetup(event, ui) {
 	if (goMessageAnchor.length > 0 && messageInputDiv.offset().top > 800) {
 		goMessageAnchor.show();
 	}
+
+	$(".naviSelected", tom.$AP()).addClass("ui-btn-active");
 }
 
 function pageDestroy(event, ui) {
@@ -256,7 +258,7 @@ function chatPollMessage(page) {
 		scope.simpleAjax(document.URL.replace(/#.*$/, '') + "/get-latest-messages", postData).done(function(result, textStatus, xhr) {
 			chatAppendmessagesUl(page, result, "top", false)
 		}).fail(function() {
-			tom.$OC(messagesUl, "messagePollProgressDiv").text("fail.retry...");
+			tom.$OC(messagesUl, "messagePollProgressDiv").text("fail.retrying...");
 		}).always(function() {
 			chatPollMessage(page);
 		})
@@ -771,59 +773,106 @@ function popupMovieWindow(src) {
 	popupMovieDiv.popup("open");
 }
 
-function showSiteMap() {
-	var siteMapDiv = tom.$APC("siteMapDiv");
-	siteMapDiv.show();
-	tom.$APC("showSiteMapBtn").hide();
-	tom.$APC("hideSiteMapBtn").show();
+function showSiteMap(showDivName, naviThis) {
+	topNaviShow(showDivName, naviThis);
+	var siteMapDiv = tom.$APC("naviSiteMpDiv");
+	if (siteMapDiv.hasClass("siteMapInited")) return;
+	$(naviThis).addClass("ui-disabled");
 
-	if (!allPagesDef) return;
+	var scope = tom.$scope(tom.$AP());
+	var query = function() {
+		scope.simpleAjax(document.URL + "/get-all-pages").done(function(result, textStatus, xhr) {
+			var allPagesDef = result.allPages;
+			var rootPage;
+			var pageMap = {};
+			for (var i=0; i< allPagesDef.length; i++) {
+				var curPage = allPagesDef[i];
+				pageMap[curPage.id] = curPage;
+				if (curPage.parent == 0) {
+					rootPage = curPage;
+				}
+			}
+			for (var i=0; i< allPagesDef.length; i++) {
+				var curPage = allPagesDef[i];
+				var parent = pageMap[curPage.parent];
+				if (parent) {
+					if (!parent.childs) parent.childs=[];
+					parent.childs.push(curPage);
+				}
+			}
+			allPagesDef = null;
 
-	var rootPage;
-	var pageMap = {};
-	for (var i=0; i< allPagesDef.length; i++) {
-		var curPage = allPagesDef[i];
-		pageMap[curPage.id] = curPage;
-		if (curPage.parent == 0) {
-			rootPage = curPage;
-		}
-	}
-	for (var i=0; i< allPagesDef.length; i++) {
-		var curPage = allPagesDef[i];
-		var parent = pageMap[curPage.parent];
-		if (parent) {
-			if (!parent.childs) parent.childs=[];
-			parent.childs.push(curPage);
-		}
-	}
-	allPagesDef = null;
-
-	var printPage = function(page) {
-		var ret;
-		if (page.isDefault) {
-			ret = $("<div>");
-		} else {
-			var img = $("<img>").attr("src", page.thumb).attr("align", "left");
-			var anc = $("<a data-role='button' data-icon='carat-r' data-iconpos='right'>").attr("href", page.id);
-			anc.append(img).append(page.title).append("<br/>").append($("<span>").css("font-weight", "normal").append("最終更新:" + page.updatedAt + " by " + page.updatedBy + ", 最終メッセージ:" + page.lastMessageAt));
-			ret = $("<li>").append(anc);
-		}
-		if (page.childs) {
-			$.each(page.childs, function(i, page) {
-				var childUl = $("<ul class='ulLatestPagesAndMessages'>");
-				childUl.append(printPage(page));
-				ret.append(childUl);
-			});
-		}
-		return ret;
-	}
-	siteMapDiv.append(printPage(rootPage));
-	siteMapDiv.enhanceWithin();
+			var printPage = function(page) {
+				var ret;
+				if (page.isDefault) {
+					ret = $("<div>").append("サイトマップ");
+					ret.append($("<button data-mini='true' data-inline='true' data-icon='plus'>").append("全展開").on("click", function(){
+						var childUl = $("ul", $("ul", siteMapDiv));
+						childUl.show();
+						var allExpandBtn = $(".expandBtn", siteMapDiv);
+						allExpandBtn.removeClass("ui-icon-plus");
+						allExpandBtn.addClass("ui-icon-minus");
+					}));
+					ret.append($("<button data-mini='true' data-inline='true' data-icon='minus'>").append("全省略").on("click", function(){
+						var childUl = $("ul", $("ul", siteMapDiv));
+						childUl.hide();
+						var allExpandBtn = $(".expandBtn", siteMapDiv);
+						allExpandBtn.removeClass("ui-icon-minus");
+						allExpandBtn.addClass("ui-icon-plus");
+					}));
+				} else {
+					var img = $("<img>").attr("src", page.thumb).attr("align", "left");
+					var anc = $("<a data-role='button' data-icon='carat-r' data-iconpos='right'>").attr("href", page.id);
+					anc.append(img).append(page.title).append("<br/>").append($("<span>").css("font-weight", "normal").append("最終更新:" + page.updatedAt + " by " + page.updatedBy + ", 最終メッセージ:" + page.lastMessageAt));
+					var expandBottn = "";
+					if (page.childs) {
+						expandBottn = $("<button class='expandBtn' onclick='expandSiteMap(this)' style='position:absolute; top:0.3em; left:-2em; width:2em; height:2em; padding:0; margin:0;' data-icon='plus'>");
+					}
+					ret = $("<li style='position:relative;'>").append(expandBottn).append(anc);
+				}
+				if (page.childs) {
+					$.each(page.childs, function(i, page) {
+						var childUl = $("<ul class='ulLatestPagesAndMessages'>");
+						childUl.append(printPage(page));
+						ret.append(childUl);
+					});
+				}
+				return ret;
+			}
+			siteMapDiv.empty();
+			siteMapDiv.append(printPage(rootPage));
+			siteMapDiv.enhanceWithin();
+			siteMapDiv.addClass("siteMapInited");
+			$(naviThis).removeClass("ui-disabled");
+			$("ul", $("ul", siteMapDiv)).hide();
+		}).fail(function() {
+			siteMapDiv.children().append("fail retrying..");
+			scope.wait(10000).done(query);
+		})
+	};
+	query();
 }
 
-function hideSiteMap() {
-	var siteMapDiv = tom.$APC("siteMapDiv");
-	siteMapDiv.hide();
-	tom.$APC("showSiteMapBtn").show();
-	tom.$APC("hideSiteMapBtn").hide();
+function topNaviShow(showDivName, naviThis) {
+	$(".topNavi", tom.$AP).hide();
+	tom.$APC(showDivName).show();
+
+	$("a", tom.$APC("topNavi")).removeClass("naviSelected");
+	$(naviThis).addClass("naviSelected");
 }
+
+function expandSiteMap(btnThis) {
+	var btn = $(btnThis);
+	var childUl = btn.parent().children("ul");
+	if (btn.hasClass("ui-icon-plus")) {
+		childUl.show();
+		btn.removeClass("ui-icon-plus");
+		btn.addClass("ui-icon-minus");
+	} else {
+		childUl.hide();
+		btn.removeClass("ui-icon-minus");
+		btn.addClass("ui-icon-plus");
+	}
+}
+
+

@@ -5,48 +5,56 @@
 @section('content')
 {{$site->body}}
 <div name="pageBodyDiv" class="body">
-<div name="pageContentsDiv">
-{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->body)}}
-</div>
-	<div style="clear:both"></div>
+	<div name="topNavi" data-role="navbar" data-iconpos="left">
+		<ul>
+			<li><a href="#" onclick="topNaviShow('naviTopContentsDiv',this)" class="ui-btn-active naviSelected" data-icon="home">TOP</a></li>
+			<li><a href="#" onclick="topNaviShow('naviLatestContentsDiv',this)" data-icon="star">最新</a></li>
+			<li><a href="#" onclick="showSiteMap('naviSiteMpDiv',this)" data-icon="sitemap">マップ</a></li>
+			<li><a href="#" onclick="topNaviShow('naviSearchDiv',this)" data-icon="spinner">[準備中]</a></li>
+		</ul>
+	</div>
+	<div name="naviTopContentsDiv" class="topNavi">
+		<div name="pageContentsDiv">
+		{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->body)}}
+		</div>
+		<div style="clear:both"></div>
 	@if(!$childPages->isEmpty())
-	<ul data-role="listview" data-inset="true">
-		@foreach ($childPages as $child)
-		<li>
-			<a href="{{{ $child->id }}}" data-pageId="{{{ $child->id }}}"><img src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $child->thumbnail)}}"/>{{{ $child->title }}}<br><div style="margin-left:1em; font-weight:normal; font-size: small;">{{MyDate::relativeDatetime($child->updated_at?$child->updated_at:$child->created_at)}} 更新<br/>{{$child->lastMessage_at?MyDate::relativeDatetime($child->lastMessage_at):"no"}} メッセージ</div></a>
-		</li>
-		@endforeach
-	</ul>
-	@endif
+		<ul data-role="listview" data-inset="true">
+			@foreach ($childPages as $child)
+			<li>
+				<a href="{{{ $child->id }}}" data-pageId="{{{ $child->id }}}"><img src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $child->thumbnail)}}"/>{{{ $child->title }}}<br><div style="margin-left:1em; font-weight:normal; font-size: small;">{{MyDate::relativeDatetime($child->updated_at?$child->updated_at:$child->created_at)}} 更新<br/>{{$child->lastMessage_at?MyDate::relativeDatetime($child->lastMessage_at):"no"}} メッセージ</div></a>
+			</li>
+			@endforeach
+		</ul>
+		@endif
+	</div>
+	<div name="naviLatestContentsDiv" class="topNavi" style="display:none;">
+		<div >最新更新ページへのショートカット</div>
+		<div name="refreshLatestPagesAndMessagesDiv" style="background-color:white" data-role="navbar">
+			<ul>
+				<li><a href="#" onclick="refreshLatestPagesAndMessages(20)">最新20件</a></li>
+				<li><a href="#" onclick="refreshLatestPagesAndMessages(40)">40件</a></li>
+				<li><a href="#" onclick="refreshLatestPagesAndMessages(70)">70件</a></li>
+				<li><a href="#" onclick="refreshLatestPagesAndMessages(100)">100件</a></li>
+			</ul>
+		</div>
+		<div style="margin:0 20px 0 20px">
+			<ul name="ulLatestPagesAndMessages" class="ulLatestPagesAndMessages" data-role="listview" data-inset="true">
+			</ul>
+		</div>
+	</div>
+	<div name="naviSiteMpDiv" class="topNavi siteMap" style="display:none;">
+		<div style="height: 4em; padding-top:2em">
+			now loading...
+		</div>
+	</div>
+	<div name="naviSearchDiv" class="topNavi" style="display:none;">
+		<div style="height: 4em; padding-top:2em">
+			under construnction...
+		</div>
+	</div>
 </div>
 <hr/>
-<span>更新ページへのショートカット</span>
-<div name="refreshLatestPagesAndMessagesDiv" style="background-color:white" data-role="navbar">
-	<ul>
-		<li><a href="#" onclick="refreshLatestPagesAndMessages(20)">最新20件</a></li>
-		<li><a href="#" onclick="refreshLatestPagesAndMessages(40)">40件</a></li>
-		<li><a href="#" onclick="refreshLatestPagesAndMessages(70)">70件</a></li>
-		<li><a href="#" onclick="refreshLatestPagesAndMessages(100)">100件</a></li>
-	</ul>
-</div>
-<div style="margin:0 20px 0 20px">
-<ul name="ulLatestPagesAndMessages" class="ulLatestPagesAndMessages" data-role="listview" data-inset="true">
-</ul>
-</div>
-<hr/>
-<button name="showSiteMapBtn" data-icon="chevron-down" data-mini="true" onclick="showSiteMap()">サイトマップを表示</button>
-<button name="hideSiteMapBtn" data-icon="chevron-up" data-mini="true" onclick="hideSiteMap()" style="display: none" >サイトマップを非表示</button>
-<div name="siteMapDiv" class="siteMap">
-	@if(!$allPages->isEmpty())
-	<script>
-		var allPagesDef = [
-		@foreach ($allPages as $page)
-			{ id: {{{$page->id }}}, thumb: "{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->thumbnail)}}", title: "{{ MyStr::jsionEscape($page->title) }}", updatedBy: "{{ MyStr::jsionEscape($page->updated_by) }}", updatedAt: "{{MyDate::relativeDatetime($page->updated_at?$page->updated_at:$page->created_at)}}", lastMessageAt: "{{$page->lastMessage_at?MyDate::relativeDatetime($page->lastMessage_at):'no'}}", parent: {{{$page->parent?$page->parent:0}}}, isDefault: "{{$page->isDefault}}" },
-		@endforeach
-		];
-	</script>
-	@endif
-</div>
 @stop
 
 @section('footer')

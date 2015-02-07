@@ -48,8 +48,7 @@
 	background-color: rgba(255, 255, 255, 0.8);
 	font-style: normal;
 	text-shadow: none;
-	overflow: auto;
-	l
+	xxoverflow: auto;
 }
 
 .table {
@@ -293,13 +292,15 @@ img {
 	max-height: 3em;
 	max-width: 3em;
 }
+
 .siteMap a {
 	text-align: left;
 	min-height: 3em;
 }
 .siteMap ul {
-	padding-left: 1em;
+	padding-left: 2em;
 	list-style: none;
+	margin: 0;
 }
 .siteMap li {
 	list-style: none;

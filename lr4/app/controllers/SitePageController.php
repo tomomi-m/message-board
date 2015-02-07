@@ -19,11 +19,6 @@ class SitePageController extends \BaseController {
 
 		$userName = MySession::getUserName ( $site->id );
 
-		$allPages = null;
-		if ($pageIndex == "home") {
-			$allPages = Page::where ( 'site', $site->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
-		}
-
 		return View::make ( 'site.page.' . (($pageIndex == "home") ? "home" : "page"), array (
 				'site' => $site,
 				'page' => $page,
@@ -32,9 +27,26 @@ class SitePageController extends \BaseController {
 				'emotions' => $this->getEmotionCatalog ( $site ),
 				'userName' => $userName,
 				'isEditable' => ($pageIndex == "home") ? false : true,
-				'breadCrumb' => $breadCrumb,
-				'allPages' => $allPages
+				'breadCrumb' => $breadCrumb
 		) );
+	}
+	public function anyGetAllPages(Site $site, $pageIndex) {
+		$allPages = Page::where ( 'site', $site->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
+		$allPagesDef = array();
+		foreach ($allPages as $page) {
+			$allPagesDef[] = array(
+				'id' => $page->id,
+				'thumb' => str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->thumbnail),
+				'title' => $page->title,
+				'updatedBy' => $page->updated_by,
+				'updatedAt' => MyDate::relativeDatetime($page->updated_at?$page->updated_at:$page->created_at),
+				'lastMessageAt' => $page->lastMessage_at?MyDate::relativeDatetime($page->lastMessage_at):'no',
+				'parent' => $page->parent?$page->parent:0,
+				'isDefault' => $page->isDefault
+			);
+		}
+		$ret ['allPages'] = $allPagesDef;
+		return Response::json ( $ret );
 	}
 	function getBreadCrumbList($page) {
 		$ret = array ();
@@ -49,7 +61,7 @@ class SitePageController extends \BaseController {
 	}
 	public function anyGetLatestXMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 		$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->orderBy ( 'id', 'desc' )->take ( self::LAST_X_MESSAGE_LENGTH )->get ();
 		foreach ( $messages as $message ) {
 			$message->images = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->images );
@@ -65,7 +77,7 @@ class SitePageController extends \BaseController {
 	}
 	public function postAddMessage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 
 		$isHumanResponse = $this->validateHuman ( $site );
 		if ($isHumanResponse)
@@ -120,7 +132,7 @@ class SitePageController extends \BaseController {
 	}
 	public function anyGetLatestMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 		$data = Input::all ();
 		if (! array_key_exists ( 'lastMessageId', $data )) {
 			$data ['lastMessageId'] = 0;
@@ -136,10 +148,10 @@ class SitePageController extends \BaseController {
 	}
 	public function anyGetOlderMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 		$data = Input::all ();
 		if (! array_key_exists ( 'olderMessageId', $data )) {
-			App::abort ( 404, "Unvalid olderMessageId" );
+			App::abort ( 404, "Invalid olderMessageId" );
 		}
 		$pagingLength = self::PAGING_LENGTH;
 		if (array_key_exists ( 'boost', $data )) {
@@ -205,7 +217,7 @@ class SitePageController extends \BaseController {
 	public function anyGetEmotions(Site $site, $pageIndex = null) {
 		$data = Input::all ();
 		if (! array_key_exists ( 'folder', $data )) {
-			App::abort ( 404, "Unvalid folder" );
+			App::abort ( 404, "Invalid folder" );
 		}
 
 		$images = array ();
@@ -225,7 +237,11 @@ class SitePageController extends \BaseController {
 	}
 	public function anyEditPage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
+
+		$isValidLogin = $this->validateLogin($site);
+		if ($isValidLogin)
+			return $isValidLogin;
 
 		$pageWhere = Page::where ( 'site', $site->id );
 		if ($pageIndex == "index" || $pageIndex == "home") {
@@ -249,7 +265,7 @@ class SitePageController extends \BaseController {
 	}
 	public function anySavePageEdit(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 
 		$isHumanResponse = $this->validateHuman ( $site );
 		if ($isHumanResponse)
@@ -328,8 +344,13 @@ class SitePageController extends \BaseController {
 	}
 	public function anyCreateChildPage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
-			// $parent = Page::find ( $pageIndex );
+			App::abort ( 404, "Invalid #Page" );
+
+		$isValidLogin = $this->validateLogin($site);
+		if ($isValidLogin)
+			return $isValidLogin;
+
+		// $parent = Page::find ( $pageIndex );
 		$page = new Page ();
 		$page->site = $site->id;
 		$page->title = "---ここにページタイトル---";
@@ -347,11 +368,20 @@ class SitePageController extends \BaseController {
 	}
 	public function anyDeletePage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 
-		$page = Page::where ( 'site', $site->id )->where ( 'id', $pageIndex )->first ();
-		$page->delete ();
-		return "Deleted page:" . $pageIndex;
+		$isValidLogin = $this->validateLogin($site);
+		if ($isValidLogin)
+			return $isValidLogin;
+
+		$userName = MySession::getUserName ( $site->id );
+
+		$updateCount = DB::update ( "update pages set site=CONCAT(site,'-none'), updated_at=current_timestamp, updated_by=? where site=? and id= ?", array (
+				$userName,
+				$site->id,
+				$pageIndex
+		) );
+		return ($updateCount?"Deleted page:":"Page not found:") . $pageIndex;
 	}
 	function getLatestUpdated($site, $topNum) {
 		$recentUpdatedPagesAndMessages = DB::select ( "select * from " . 		//
@@ -366,7 +396,7 @@ class SitePageController extends \BaseController {
 	}
 	function anyGetLatestPagesAndMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 		$data = Input::all ();
 		$latestUpdated = $this->getLatestUpdated ( $site, $data ["topN"] );
 		foreach ( $latestUpdated as $message ) {
@@ -379,7 +409,12 @@ class SitePageController extends \BaseController {
 	}
 	public function anyEditProfile(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
+
+		$isValidLogin = $this->validateLogin($site);
+		if ($isValidLogin)
+			return $isValidLogin;
+
 		$data = Input::all ();
 		$pageWhere = Page::where ( 'site', $site->id );
 		if ($pageIndex == "index" || $pageIndex == "home") {
@@ -405,7 +440,7 @@ class SitePageController extends \BaseController {
 	}
 	public function anySaveProfileEdit(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
-			App::abort ( 404, "Unvalid #Page" );
+			App::abort ( 404, "Invalid #Page" );
 
 		$isHumanResponse = $this->validateHuman ( $site );
 		if ($isHumanResponse)
@@ -474,6 +509,14 @@ class SitePageController extends \BaseController {
 			return null;
 
 		$response = Response::make ( '{"r":"are you human?"}', 202 );
+		return $response;
+	}
+	function validateLogin(Site $site) {
+		$isHuman = MySession::getUserId ( $site->id );
+		if ($isHuman)
+			return null;
+
+		$response = Response::make ( 'Unauthorized', 403 );
 		return $response;
 	}
 }

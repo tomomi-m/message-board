@@ -5,7 +5,7 @@
 				<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw%3D%3D" style="height:4em; width:1px;"/>
 			</div>
 			<div style="padding: 0px; width:50px;">
-			<img style="border-radius: 5px" height="50px" src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->thumbnail)}}" align="top"/>
+			<img style="border-radius: 5px" src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->thumbnail)}}" align="top"/>
 			</div>
 			<div style="overflow:visible; white-space:normal; word-break: break-all; padding: 0em 0.5em 0em 0em;">
 				{{{$page->title}}}
