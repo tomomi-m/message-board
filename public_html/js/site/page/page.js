@@ -655,7 +655,7 @@ function refreshLatestPagesAndMessages(topN) {
 				a.append("<br/>");
 				var divDesc = $("<div>");
 				divDesc.attr("style", "margin-left:1em; font-weight:normal; font-size: small; overflow:hidden; text-overflow:ellipsis;");
-				divDesc.append( val.updated_at + " " + val.userName + "<br/>" + val.message);
+				divDesc.append( val.updated_at + " " + val.updated_by + "<br/>" + val.message);
 				a.append(divDesc);
 				var a2;
 				if (val.type == 1) {
