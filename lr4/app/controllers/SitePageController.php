@@ -384,10 +384,14 @@ class SitePageController extends \BaseController {
 		return ($updateCount?"Deleted page:":"Page not found:") . $pageIndex;
 	}
 	function getLatestUpdated($site, $topNum) {
-		$recentUpdatedPagesAndMessages = DB::select ( "select * from " . 		//
-		"(select 'message' as kind, p.id, p.thumbnail, p.title, m.userName, m.message, m.updated_at from (select page, max(m.id) as id from messages m where m.site=? group by page) rm inner join messages m on rm.id = m.id inner join pages p on m.page = p.id " . 		//
-		"union all select 'page' as kind, id, thumbnail, title , ifnull(updated_by,''), '[ページ更新]', updated_at from pages where site=? " . 		//
-		") a order by updated_at desc limit ?", array (
+		$recentUpdatedPagesAndMessages = DB::select ( //
+		"select type, p.id, p.site, p.title, p.thumbnail, case type when 1 then m.userName else p.updated_by end updated_by, case type when 1 then m.message else p.message end message, case type when 1 then m.updated_at else p.updated_at end updated_at " . //
+		"from ( " . //
+		"select 1 type, id, site, title, thumbnail, null updated_by, null message, lastMessage_at updated_at from pages where site=? " . //
+		"union all select 2 type, id, site, title, thumbnail, ifnull(updated_by,'') updated_by, '[ページ更新]' message, updated_at from pages where site=? " . //
+		"order by updated_at desc limit ? " . //
+		") p left outer join messages m on p.type=1 and m.id=(select max(mmax.id) from messages mmax where mmax.site=p.site and mmax.page=p.id group by page) " . //
+		"" , array (
 				$site->id,
 				$site->id,
 				$topNum

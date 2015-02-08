@@ -7,6 +7,12 @@ $(document).on("popupbeforeposition.tomomi", ".popupImageDiv", function() {
 	$("img", $(this)).css("max-height", maxHeight);
 });
 
+$(document).on("popupbeforeposition.tomomi", ".popupTiraDiv", function() {
+	var minWidth= $(window).width() - 100 + "px";
+	var maxHeight = $(window).height() - 150 + "px";
+	tom.$OC($(this),"messagesDiv").css("max-height", maxHeight).css("min-width", minWidth);
+});
+
 $(document).on("popupafteropen.tomomi", ".popupLoginDiv", function() {
 	$("input", $(this)).first().focus();
 });
@@ -36,7 +42,7 @@ function pageSetup(event, ui) {
 			var query = function() {
 				scope.simpleAjax(document.URL + "/get-latest-xmessages", {}).done(function(result, textStatus, xhr) {
 					$("li", messagesUl).remove();
-					chatAppendmessagesUl(page, result, "top", true);
+					chatAppendMessagesUl(page, result, "top", true);
 					chatPollMessage(page);
 				}).fail(function() {
 					var li = $("li", messagesUl);
@@ -127,13 +133,15 @@ function headerInit(page) {
 	}
 }
 
-function chatAppendmessagesUl(page, result, direction, doControlGetOlderA) {
+function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messagesUl) {
 	if (direction == "bottom")
 		result.messages.reverse();
 	var authedUserName = result.authedUserName;
 	if (authedUserName)
 		authedUserName = authedUserName.toLowerCase();
-	var messagesUl = tom.$OC(page, "messagesUl");
+	if (!messagesUl) {
+		messagesUl = tom.$OC(page, "messagesUl");
+	}
 	$.each(result.messages, function(i, val) {
 		var lastMessageLi = $("[user-data-posted-id]", messagesUl);
 		if (direction == "top" && lastMessageLi.length > 0) {
@@ -234,7 +242,7 @@ function getOlderMessage(self) {
 			img.attr("src", img.attr("data-img-bk"));
 			img.removeAttr("data-img-bk");
 			messageGetOlderA.removeClass("ui-disabled");
-			chatAppendmessagesUl(page, result, 'bottom', true);
+			chatAppendMessagesUl(page, result, 'bottom', true);
 		}).fail(function() {
 			scope.wait(10000).done(query);
 		})
@@ -256,7 +264,7 @@ function chatPollMessage(page) {
 		}
 		tom.$OC(messagesUl, "messagePollProgressDiv").text("⇔");
 		scope.simpleAjax(document.URL.replace(/#.*$/, '') + "/get-latest-messages", postData).done(function(result, textStatus, xhr) {
-			chatAppendmessagesUl(page, result, "top", false)
+			chatAppendMessagesUl(page, result, "top", false)
 		}).fail(function() {
 			tom.$OC(messagesUl, "messagePollProgressDiv").text("fail.retrying...");
 		}).always(function() {
@@ -315,7 +323,7 @@ function postMessage(self) {
 			messageTxt.textinput("refresh");
 			chatAttachImagesDiv.html("");
 			messageSubmitBtn.val("送").button("refresh");
-			chatAppendmessagesUl(page, result, "top", false)
+			chatAppendMessagesUl(page, result, "top", false)
 		}
 	}).fail(function(result, textStatus, xhr) {
 		messageSubmitBtn.val("err:" + textStatus).button("refresh");
@@ -649,7 +657,15 @@ function refreshLatestPagesAndMessages(topN) {
 				divDesc.attr("style", "margin-left:1em; font-weight:normal; font-size: small; overflow:hidden; text-overflow:ellipsis;");
 				divDesc.append( val.updated_at + " " + val.userName + "<br/>" + val.message);
 				a.append(divDesc);
+				var a2;
+				if (val.type == 1) {
+					a2 = $("<a href='#'/>").on('click', function() {
+						tiraMessage(this);
+					});
+				}
 				li.append(a);
+				if (a2) li.append(a2);
+				li.attr("data-pageId", val.id);
 				ulLatestPagesAndMessages.append(li);
 			});
 			ulLatestPagesAndMessages.listview('refresh');
@@ -875,4 +891,46 @@ function expandSiteMap(btnThis) {
 	}
 }
 
+function tiraMessage(aThis) {
+	var li = $(aThis).parent();
+	var pageId = li.attr("data-pageId");
+	var popupTiraDiv=tom.$APC("popupTiraDiv");
+	var tiraMessagesUl=tom.$OC(popupTiraDiv, "tiraMessagesUl");
+	$("li",tiraMessagesUl).remove();
+	tiraMessagesUl.append("<li>loading...</li>");
+	popupTiraDiv.popup();
+	popupTiraDiv.show();
+	popupTiraDiv.popup("open");
 
+	if (!tiraMessagesUl.attr("data-listview-inited")) {
+		tiraMessagesUl.listview({
+			autodividers : true,
+			autodividersSelector : function(li) {
+				var out = li.attr("user-data-posted-date");
+				return out;
+			}
+		});
+		tiraMessagesUl.attr("data-listview-inited","true");
+	}
+
+	tom.$OC(tiraMessagesUl, "messagePollProgressDiv").text("⇔");
+	var page = tom.$AP();
+	var scope = tom.$scope(page);
+	var query = function() {
+		scope.simpleAjax(document.URL.replace(/^(.*\/).*$/, "$1")+pageId+"/get-latest-xmessages", {}).done(function(result, textStatus, xhr) {
+			$("li", tiraMessagesUl).remove();
+			chatAppendMessagesUl(page, result, "top", false, tiraMessagesUl);
+			popupTiraDiv.popup("reposition", {
+				positionTo : "window"
+			});
+			popupTiraDiv.popup("reposition", {
+				positionTo : "window"
+			});
+		}).fail(function() {
+			var li = $("li", tiraMessagesUl);
+			li.text(li.text() + ".fail retrying..");
+			scope.wait(10000).done(query);
+		})
+	};
+	query();
+}

@@ -39,7 +39,7 @@
 			</ul>
 		</div>
 		<div style="margin:0 20px 0 20px">
-			<ul name="ulLatestPagesAndMessages" class="ulLatestPagesAndMessages" data-role="listview" data-inset="true">
+			<ul name="ulLatestPagesAndMessages" class="ulLatestPagesAndMessages" data-role="listview" data-inset="true" data-split-icon="stack-exchange">
 			</ul>
 		</div>
 	</div>
@@ -51,6 +51,18 @@
 	<div name="naviSearchDiv" class="topNavi" style="display:none;">
 		<div style="height: 4em; padding-top:2em">
 			under construnction...
+		</div>
+	</div>
+
+	<div name="popupTiraDiv" style="display:none" class="popupTiraDiv" data-overlay-theme="b" data-corners="false" data-tolerance="50">
+		<div style="background-color: skyblue">メッセージプレビュー</div>
+		<a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div name="messagesDiv" style="overflow-y:scroll; font-size: 70%; min-width:100px;">
+			<ul name="tiraMessagesUl" class="messageUL" style="position:relative;min-height:25px" data-role="listview"
+				data-inset="true">
+				<div name="messagePollProgressDiv" style="position:absolute; right:0; top: 0; color:gray;">??</div>
+				<li>loading...</li>
+			</ul>
 		</div>
 	</div>
 </div>
