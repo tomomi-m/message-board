@@ -19,23 +19,23 @@
 						/>
 				</a>
 			</td>
-			<td align="center">
+			<td>
 				<textarea name="messageTxt" placeholder="内容" style="margin-bottom: 0px" data-mini="true" data-inline="true" contenteditable></textarea>
-				<fieldset style="margin: 0 0 0 4em; position: relative;"
-					data-role="controlgroup" data-type="horizontal" data-inline="true">
-					<button style="width: 5em" tabindex="-1" type="button"
-						data-icon="picture-o" data-iconpos="notext">&nbsp;</button>
-					<input name="chatAttachImageInp" type="file" accept="image/*"
-						style="display: none; position: absolute; top: 0; left: 0; width: 5em;"
-						data-role="none" onchange="chatAppendImage(event, this)"/>
+				<fieldset style="position: relative; display:inline-block" data-role="controlgroup" data-type="horizontal" data-inline="true">
+					<button style="width: 8em; height: 2.3em; padding:0; line-height:0.7em" tabindex="-1" type="button"
+						data-icon="file"><span style="font-size: 60%; font-weight: normal">png, jpg, gif<br/>, psd, ai, pdf</span></button>
+					<input name="chatAttachImageInp" type="file" accept="image/*,.psd,.ai,.pdf"
+						style="display: none; position: absolute; top: 0; left: 0; width: 8em;"
+						data-role="none" onchange="chatAppendImage(event, this)" multiple/>
 				</fieldset>
-			</td>
+				</td>
 			<td width="50px"><input type="button" name="messageSubmitBtn" data-icon="site-ok-submit" data-inline="true" data-mini="true" data-iconpos="bottom" disabled onclick="postMessage(this)" value="送">
 			</td>
 		</tr>
 		<tr>
 			<td colspan="3">
-				<div name="chatAttachImagesDiv" class="shadowImages" style="display: inline-block"></div>
+				<div name="chatAttachImagesDiv" class="shadowImages"></div>
+				<div name="chatAttachFilesDiv"></div>
 			</td>
 		</tr>
 	</table>

@@ -3,7 +3,7 @@
 <div name="pageEditHeader" data-role="header" data-position="fixed" >
 	<fieldset name="wysiwyg-toolbar" style="margin:0;position:relative;" data-role="controlgroup" data-type="horizontal" data-inline="true">
 			<button style="width:5em;height:3.5em" class="wysiwyg-control" tabindex="-1" data-role="button"  data-icon="picture-o" data-iconpos="notext">&nbsp;</button>
-			<input type="file" accept="image/*" class="wysiwyg-control" style="display:none;" data-wysiwyg-command="insertImage" data-role="none"/>
+			<input type="file" accept="image/*" class="wysiwyg-control" style="display:none;" data-wysiwyg-command="insertImage" data-role="none" multiple/>
 			<button name="explode-toolbar-btn" style="width:2em;height:3.5em" class="wysiwyg-control small-only" data-wysiwyg-command="explode-toolbar" data-role="button" data-icon="angle-double-right" data-iconpos="notext">&nbsp;</button>
 			<button name="implode-toolbar-btn" style="width:2em;height:3.5em" class="wysiwyg-control large-only" data-wysiwyg-command="implode-toolbar" data-role="button" data-icon="angle-double-left" data-iconpos="notext">&nbsp;</button>
 

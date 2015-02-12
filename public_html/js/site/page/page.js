@@ -193,6 +193,32 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 			$("img", divC).on("click", chatImageClick);
 			li.append(divC);
 		}
+		if (val.files) {
+			divC = $("<div class='attachFiles' />").html(val.files);
+			$("a", divC).each(function() {
+				var anch = $(this);
+				var filename = anch.attr("data-filename");
+				var divBox = getAttachFileDivBox();
+				divBox.append(filename);
+				anch.append(divBox);
+				anch.on("click", function() {
+					confirmDialog("「"+filename+"」をダウンロードします。<br><br>当サイトではアップロードされたファイルのウィルスチェックは行っていませんのでご留意ください。", function() {
+						var downloadForm = $("#downloadForm");
+						if (!downloadForm.length) {
+							downloadForm = $('<form id="downloadForm" method="post" target="_blank">');
+							downloadForm.append('<input type="hidden" name="filename">');
+							downloadForm.append('<input type="hidden" name="href">');
+							$("body").append(downloadForm);
+						}
+						tom.$OC(downloadForm, "filename").val(filename);
+						tom.$OC(downloadForm, "href").val(anch.attr("data-href"));
+						downloadForm.attr("action",document.URL + "/download-attach-file");
+						downloadForm.submit();
+					});
+				});
+			});
+			li.append(divC);
+		}
 		li.attr("user-data-posted-id", val.id);
 		li.attr("user-data-posted-date", val.updated_at.substr(0, 10));
 		if (direction == "bottom") {
@@ -292,6 +318,14 @@ function postMessage(self) {
 			chatAttachImagesStr += " ";
 		chatAttachImagesStr += this.outerHTML;
 	});
+	var chatAttachFilesDiv = tom.$OC(messageInputDiv, "chatAttachFilesDiv");
+	var chatAttachFileNames = [];
+	var chatAttachFileContents = [];
+	$.each(tom.$OC(chatAttachFilesDiv, "fileDiv"), function(i, val) {
+		var fileDiv = $(this);
+		chatAttachFileNames.push(fileDiv.attr("data-filename"));
+		chatAttachFileContents.push(fileDiv.attr("data-contents"));
+	});
 	var lastMessageLi = tom.$OC(page, "messagesUl").children(":eq(1)");
 	var imgFace = tom.$OC(messageInputDiv, "imgFace");
 	if (!imgFace.attr("data-no-settings")) {
@@ -306,6 +340,8 @@ function postMessage(self) {
 		imgFace : imgFaceVal,
 		imgEmotion : imgEmotionVal,
 		attachImages : chatAttachImagesStr,
+		attachFilesName: chatAttachFileNames,
+		attachFilesContents: chatAttachFileContents,
 		lastMessageId : lastMessageLi.attr("user-data-posted-id"),
 	}
 	messageSubmitBtn.val("送中..").button("refresh");
@@ -322,6 +358,7 @@ function postMessage(self) {
 			messageTxt.val("");
 			messageTxt.textinput("refresh");
 			chatAttachImagesDiv.html("");
+			chatAttachFilesDiv.html("");
 			messageSubmitBtn.val("送").button("refresh");
 			chatAppendMessagesUl(page, result, "top", false)
 		}
@@ -521,7 +558,8 @@ function chatAppendImage(event, self) {
 	var page = tom.$AP();
 	var messageInputDiv = tom.$OC(page, "messageInputDiv");
 	var chatAttachImagesDiv = tom.$OC(messageInputDiv, "chatAttachImagesDiv");
-	appendImageToDiv(event, 200, null, chatAttachImagesDiv);
+	var chatAttachFilesDiv = tom.$OC(messageInputDiv, "chatAttachFilesDiv");
+	appendImageToDiv(event, 200, null, chatAttachImagesDiv, chatAttachFilesDiv);
 }
 
 function chatImageClick(event) {
@@ -561,21 +599,65 @@ function profileAppendImage(event, self) {
 	appendImageToDiv(event, 48);
 }
 
-function appendImageToDiv(event, prefferedSize, callback, imagesDiv) {
+function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
+	var maxSize = 10*1024*1024;
+	var maxCount = 10;
 	var fileInp = event.target;
-	var imagesDiv = imagesDiv?imagesDiv:$(fileInp).next(":first");
+	var imagesDiv = imagesDiv ? imagesDiv : $(fileInp).next(":first");
+	var sizeOverFiles = [];
+	var sizeZeroFiles = [];
+	var invalidExtFiles = [];
+	var countOverFiles = [];
+	var startCount = tom.$OC(imagesDiv,"imageTd").length + tom.$OC(filesDiv,"fileTd").length;
 	$
 			.each(
 					fileInp.files,
 					function(idx, fileInfo) {
-						if (/^image\//.test(fileInfo.type)) {
-							$
-									.when(readFileIntoDataUrl(fileInfo))
-									.done(
-											function(dataUrl) {
+						if (fileInfo.size == 0) {
+							sizeZeroFiles.push(fileInfo.name);
+							return;
+						}
+						if (fileInfo.size > maxSize) {
+							sizeOverFiles.push(fileInfo.name);
+							return;
+						}
+						if (startCount + idx + 1 > maxCount) {
+							countOverFiles.push(fileInfo.name);
+							return;
+						}
+						var isImageFile = false;
+						var fileext = fileInfo.name.replace(/^.+\.(.+)$/, "$1");
+						switch (fileext) {
+						case "jpg":
+						case "jpeg":
+						case "png":
+						case "gif":
+							isImageFile = true;
+							break;
+						case "psd":
+						case "ai":
+						case "pdf":
+							if (filesDiv && filesDiv.length > 0) {
+								break;
+							}
+						default:
+							invalidExtFiles.push(fileInfo.name);
+							return;
+						}
+						$
+								.when(readFileIntoDataUrl(fileInfo))
+								.done(
+										function(dataUrl) {
+											if (!/^data:.*?;base64,.*$/.test(dataUrl)) {
+												pageAlert({
+													description : "取り扱えないファイルエンコーディングのため添付できません",
+													stack : fileInfo.name
+												});
+											}
+											if (isImageFile) {
 												var image = $("<img>").attr("src", dataUrl);
 												image.hide();
-												var table = $('<table border="0" style="display:inline-block"><tr><td><a name="moveImageBtn" data-role="button" data-icon="arrow-left" onclick="moveImageInDiv(event)">&nbsp;</a></td></tr><tr><td name="imageTd"></td></tr><tr><td><a name="delImageBtn" data-role="button" onclick="deleteImageFromDiv(event)">削除</a></td></tr></table>');
+												var table = $('<table border="0" style="display:inline-block"><tr><td><a name="moveImageBtn" data-role="button" data-icon="arrow-left" onclick="moveImageInDiv(event)">&nbsp;</a></td></tr><tr><td name="imageTd"></td></tr><tr><td><a name="delImageBtn" data-role="button" onclick="deleteImageFromDiv(event)" style="margin-top:0;">削除</a></td></tr></table>');
 												tom.$OC(table, "imageTd").append(image);
 												imagesDiv.append(table);
 												table.trigger("create");
@@ -587,12 +669,47 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv) {
 													if (callback)
 														callback();
 												});
-											}).fail(function(e) {
-										pageAlert(e);
-									});
-						}
+											} else {
+												var table = $('<table border="0" style="display:inline-block"><tr><td name="fileTd" style="vertical-align:bottom;"></td></tr><tr><td><a name="delImageBtn" data-role="button" onclick="deleteImageFromDiv(event)" style="margin-top:0;">削除</a></td></tr></table>');
+												var fileDiv = getAttachFileDivBox();
+												fileDiv.append(fileInfo.name);
+												fileDiv.attr("data-contents", dataUrl).attr("data-filename", fileInfo.name);
+												tom.$OC(table, "fileTd").append(fileDiv);
+												filesDiv.append(table)
+												table.trigger("create");
+											}
+										}).fail(function(e) {
+									pageAlert(e);
+								});
 					});
+	if (countOverFiles.length > 0) {
+		pageAlert({
+			description : "添付個数が"+maxCount+"を超えたため添付できません",
+			stack : countOverFiles.join(", <br>")
+		});
+	}
+	if (sizeZeroFiles.length > 0) {
+		pageAlert({
+			description : "ファイルサイズが０のファイルは添付できません",
+			stack : sizeZeroFiles.join(", <br>")
+		});
+	}
+	if (sizeOverFiles.length > 0) {
+		pageAlert({
+			description : "ファイルサイズの上限を超えたファイルは添付できません",
+			stack : sizeOverFiles.join(", <br>")
+		});
+	}
+	if (invalidExtFiles.length > 0) {
+		pageAlert({
+			description : "取り扱えないファイル拡張子のため添付できません",
+			stack : invalidExtFiles.join(", <br>")
+		});
+	}
 	$(fileInp).replaceWith($(fileInp).clone(true));// reset file input
+}
+function getAttachFileDivBox() {
+	return $("<div name='fileDiv' style='background-image: url(\"/image/site/attachFile.png\"); background-repeat: no-repeat; background-position: 1em 0; display:inline-block; width: 8em; min-height: 4em; font-size: 80%; word-wrap: break-word; padding-top:1em; vertical-align:bottom;'>");
 }
 function hideShowMoveImageBtn(imageDiv) {
 	var moveBtns = $("[name='moveImageBtn']", imageDiv);
@@ -933,4 +1050,15 @@ function tiraMessage(aThis) {
 		})
 	};
 	query();
+}
+
+function confirmDialog(message, callback) {
+	var confirmDiv = tom.$APC('popupConfirmDiv');
+	tom.$OC(confirmDiv, "okButton").off("click").on("click", function() {
+		confirmDiv.popup('close');
+		callback();
+	});
+	tom.$OC(confirmDiv, "message").empty().append(message);
+	confirmDiv.popup();
+	confirmDiv.popup('open');
 }

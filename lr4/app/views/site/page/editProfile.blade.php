@@ -41,7 +41,7 @@
 				data-icon="picture-o" data-iconpos="notext">&nbsp;</button>
 			<input name="profileAttachImageInp" type="file" accept="image/*"
 				style="display: none; position: absolute; top: 0; left: 0; width: 5em;"
-				data-role="none" onchange="profileAppendImage(event, this)" />
+				data-role="none" onchange="profileAppendImage(event, this)" multiple/>
 			<div name="profileAttachImagesDiv" class="shadowImages"
 				style="display: inline-block">
 				@foreach ($userIconImgs as $key => $userIconImg)

@@ -65,6 +65,7 @@ class SitePageController extends \BaseController {
 		$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->orderBy ( 'id', 'desc' )->take ( self::LAST_X_MESSAGE_LENGTH )->get ();
 		foreach ( $messages as $message ) {
 			$message->images = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->images );
+			$message->files = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->files );
 		}
 		$ret ['messages'] = array_reverse ( $messages->toArray () );
 		if (count ( $ret ['messages'] ) < self::LAST_X_MESSAGE_LENGTH) {
@@ -104,6 +105,9 @@ class SitePageController extends \BaseController {
 		if ($data ['attachImages']) {
 			$message->images = $this->parseMessageAttatchImages ( $site->id, $data ['attachImages'] );
 		}
+		if (array_key_exists ( 'attachFilesName', $data )) {
+			$message->files = $this->parseMessageAttatchFiles ( $site->id, $data ['attachFilesName'], $data ['attachFilesContents'] );
+		}
 		$message->save ();
 		DB::update ( 'update pages set lastMessage_at = current_timestamp where site=? and id= ?', array (
 				$site->id,
@@ -130,6 +134,39 @@ class SitePageController extends \BaseController {
 		$imageStr = str_replace ( ' src="' . '/image/site/' . $siteId . '/', ' src="${siteImage}/', $imageStr );
 		return $imageStr;
 	}
+	function parseMessageAttatchFiles($siteId, $attachFilesName, $attachFilesContents) {
+		$filesAnchStr= "";
+		for($index = 0; $index < count( $attachFilesName ); $index++) {
+			$contentsStr = $attachFilesContents[$index];
+			$filename = $attachFilesName[$index];
+			$fileext = preg_replace( '/^.*(\..*)$/', '$1', $filename);
+			if (stripos ( $contentsStr, 'data:', 0 ) === false) {
+				throw new Exception ( 'invalid argument:not start "data:"' );
+			}
+			$i = 0;
+			$st = stripos ( $contentsStr, ';', $i );
+			$mime_type = substr ( $contentsStr, $i + 5, $st - 5 - $i );
+			$i = $st + 1;
+			$st = stripos ( $contentsStr, ',', $i );
+			$enc = substr ( $contentsStr, $i, $st - $i );
+			$i = $st + 1;
+			$st = strlen ( $contentsStr );
+			$fileBinaryStr = substr ( $contentsStr, $i, $st - $i );
+			$fileBinary = base64_decode ( $fileBinaryStr );
+
+			$fileNewPath = (new SiteImage ())->getNewImagePath ( $siteId );
+			$fileNewName = $fileNewPath ['imageFileNameNoExt'] . $fileext;
+			$fileNewPathAbs = $fileNewPath ['imageDirAbs'] . "/" . $fileNewName;
+			$fileNewPathRel = $fileNewPath ['imageDir'] . "/" . $fileNewName;
+			$fp = fopen ( $fileNewPathAbs, 'w' );
+			fwrite ( $fp, $fileBinary );
+			fclose ( $fp );
+
+			$filesAnchStr .= '<a class="attachFile" data-href="' . $fileNewPathRel. '" data-filename="' . $filename . '" /> ';
+		}
+		$filesAnchStr = str_replace ( ' src="' . '/image/site/' . $siteId . '/', ' src="${siteImage}/', $filesAnchStr );
+		return $filesAnchStr;
+	}
 	public function anyGetLatestMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -140,6 +177,7 @@ class SitePageController extends \BaseController {
 		$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where ( 'id', '>', $data ['lastMessageId'] )->orderBy ( 'id' )->get ();
 		foreach ( $messages as $message ) {
 			$message->images = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->images );
+			$message->files = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->files );
 		}
 
 		$ret ['messages'] = $messages->toArray ();
@@ -160,6 +198,7 @@ class SitePageController extends \BaseController {
 		$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where ( 'id', '<', $data ['olderMessageId'] )->orderBy ( 'id', 'desc' )->take ( $pagingLength )->get ();
 		foreach ( $messages as $message ) {
 			$message->images = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->images );
+			$message->files = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->files);
 		}
 		$ret ['messages'] = array_reverse ( $messages->toArray () );
 		if (count ( $ret ['messages'] ) < $pagingLength) {
@@ -522,5 +561,15 @@ class SitePageController extends \BaseController {
 
 		$response = Response::make ( 'Unauthorized', 403 );
 		return $response;
+	}
+
+	public function anyDownloadAttachFile(Site $site, $pageIndex = null) {
+		if (! $pageIndex)
+			App::abort ( 404, "Invalid #Page" );
+		$data = Input::all ();
+		$filename = $data[ 'filename'];
+		$filePathRel = $data[ 'href'];
+		$filePathAbs = public_path ( Request::getBasePath () . $filePathRel );
+		return Response::download($filePathAbs, $filename, array('content-type' => 'application/octet-stream'));
 	}
 }

@@ -66,10 +66,10 @@ $(document).on('click', 'a.anchor', function(e){
 @show
 @include('site.page.loginout')
 
-	<div name="scrollDiv" style="display:table; position:fixed; bottom:1.5em; right:0px;">
+	<div name="scrollDiv" style="display:table; position:fixed; bottom:1.5em; right:0px; z-index:3; ">
 		<div style="table-row; margin-bottom:0.3em">
 			<div onclick="$('body, html').animate({ scrollTop: 0 }, 500);" style="display:table-cell;background-color:rgba(200, 200, 200, 0.6); width:3em; height: 2em;border-radius:10px;">
-				<div style="margin: 0.2em; border-left: 1.4em solid transparent;border-bottom: 0.7em solid;border-right: 1.4em solid transparent;"></div>
+				<div style="margin: 0.2em; border-left: 1.4em solid transparent;border-bottom: 0.7em solid;border-right: 1.4em solid transparent; z-index:10; "></div>
 			</div>
 			<div style="display:table-cell;width:0.5em">
 			</div>
@@ -91,6 +91,15 @@ $(document).on('click', 'a.anchor', function(e){
 		<a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
 		<div style="overflow:auto">
 			<div name="movieDiv"></div>
+		</div>
+	</div>
+	<div name="popupConfirmDiv" class="ui-content ui-corner-all"
+		data-role="popup" data-history="false" data-tolerance="50">
+		<div name="message"></div>
+		<div data-role="controlgroup" data-type="horizontal">
+			<button type="button" name="okButton" style="width:7em">OK</button>
+			<button type="button" data-theme="b" data-mini="true"
+				onclick="tom.$OP(this,'popupConfirmDiv').popup('close')">キャンセル</button>
 		</div>
 	</div>
 </div>
