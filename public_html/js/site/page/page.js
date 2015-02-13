@@ -783,6 +783,8 @@ function refreshLatestPagesAndMessages(topN) {
 				li.append(a);
 				if (a2) li.append(a2);
 				li.attr("data-pageId", val.id);
+				li.attr("data-pageThumbnail", val.thumbnail);
+				li.attr("data-pageTitle", val.title);
 				ulLatestPagesAndMessages.append(li);
 			});
 			ulLatestPagesAndMessages.listview('refresh');
@@ -956,10 +958,10 @@ function showSiteMap(showDivName, naviThis) {
 				} else {
 					var img = $("<img>").attr("src", page.thumb).attr("align", "left");
 					var anc = $("<a data-role='button' data-icon='carat-r' data-iconpos='right'>").attr("href", page.id);
-					anc.append(img).append(page.title).append("<br/>").append($("<span>").css("font-weight", "normal").append("最終更新:" + page.updatedAt + " by " + page.updatedBy + ", 最終メッセージ:" + page.lastMessageAt));
+					anc.append(img).append(page.title).append("<br/>").append($("<span>").css("font-weight", "normal").append("最終更新:" + page.updatedAt + " by " + page.updatedBy + "<br/> 最終メッセージ:" + page.lastMessageAt));
 					var expandBottn = "";
 					if (page.childs) {
-						expandBottn = $("<button class='expandBtn' onclick='expandSiteMap(this)' style='position:absolute; top:0.3em; left:-2em; width:2em; height:2em; padding:0; margin:0;' data-icon='plus'>");
+						expandBottn = $("<button class='expandBtn' onclick='expandSiteMap(this)' style='position:absolute; top:0.3em; left:-2.3em; width:2.3em; height:3em; padding:0; margin:0;' data-icon='plus'>");
 					}
 					ret = $("<li style='position:relative;'>").append(expandBottn).append(anc);
 				}
@@ -1011,8 +1013,13 @@ function expandSiteMap(btnThis) {
 function tiraMessage(aThis) {
 	var li = $(aThis).parent();
 	var pageId = li.attr("data-pageId");
+	var pageThumbnail = li.attr("data-pageThumbnail");
+	var pageTitle = li.attr("data-pageTitle");
 	var popupTiraDiv=tom.$APC("popupTiraDiv");
 	var tiraMessagesUl=tom.$OC(popupTiraDiv, "tiraMessagesUl");
+	var tileTitlebar=tom.$OC(popupTiraDiv, "titlebar");
+	tileTitlebar.empty();
+	tileTitlebar.append('<img style="width:3em" src="'+pageThumbnail+'" align="left"/>').append(pageTitle);
 	$("li",tiraMessagesUl).remove();
 	tiraMessagesUl.append("<li>loading...</li>");
 	popupTiraDiv.popup();

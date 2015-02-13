@@ -21,7 +21,7 @@
 			</td>
 			<td>
 				<textarea name="messageTxt" placeholder="内容" style="margin-bottom: 0px" data-mini="true" data-inline="true" contenteditable></textarea>
-				<fieldset style="position: relative; display:inline-block" data-role="controlgroup" data-type="horizontal" data-inline="true">
+				<fieldset style="margin-left:2em; position: relative; display:inline-block" data-role="controlgroup" data-type="horizontal" data-inline="true">
 					<button style="width: 8em; height: 2.3em; padding:0; line-height:0.7em" tabindex="-1" type="button"
 						data-icon="file"><span style="font-size: 60%; font-weight: normal">png, jpg, gif<br/>, psd, ai, pdf</span></button>
 					<input name="chatAttachImageInp" type="file" accept="image/*,.psd,.ai,.pdf"
