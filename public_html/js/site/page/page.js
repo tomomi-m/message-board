@@ -638,6 +638,7 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
 						case "psd":
 						case "ai":
 						case "pdf":
+						case "txt":
 							if (filesDiv && filesDiv.length > 0) {
 								break;
 							}
@@ -649,9 +650,9 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
 								.when(readFileIntoDataUrl(fileInfo))
 								.done(
 										function(dataUrl) {
-											if (!/^data:.*?;base64,.*$/.test(dataUrl)) {
+											if (!/^data:.*?;[Bb][Aa][Ss][Ee]64,.*$/.test(dataUrl)) {
 												pageAlert({
-													description : "取り扱えないファイルエンコーディングのため添付できません",
+													description : "取り扱えないファイルエンコーディング'" + dataUrl.replace(/^(data:.*?;[Bb][Aa][Ss][Ee]64),.*$/, "$1") + "'のため添付できません",
 													stack : fileInfo.name
 												});
 											}
