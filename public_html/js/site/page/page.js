@@ -627,7 +627,8 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
 						}
 						var isImageFile = false;
 						var fileext = fileInfo.name.replace(/^.+\.(.+)$/, "$1");
-						switch (fileext) {
+						var fileextLower = fileext.toLowerCase();
+						switch (fileextLower) {
 						case "jpg":
 						case "jpeg":
 						case "png":
@@ -641,7 +642,7 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
 								break;
 							}
 						default:
-							invalidExtFiles.push(fileInfo.name);
+							invalidExtFiles.push(fileInfo.name + "(拡張子=" + fileext + ")");
 							return;
 						}
 						$
