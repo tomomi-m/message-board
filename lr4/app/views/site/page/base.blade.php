@@ -48,10 +48,11 @@ $(document).on('click', 'a.anchor', function(e){
 {{HTML::script('/js/site/page/page.js')}}
 {{HTML::script('/js/wysiwyg-editor.js')}}
 {{HTML::script('/js/swfobject.js')}}
+{{HTML::script('/siteg/' . $site->id . '/version-js')}}
 </head>
 <body>
 @section('page')
-<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg">
+<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg" data-version="{{$version}}">
 @show
 
 @section('header')
@@ -85,7 +86,7 @@ $(document).on('click', 'a.anchor', function(e){
 			<img />
 		</div>
 	</div>
-	<div name="popupAlertDiv" data-role="popup" data-overlay-theme="b" class="ui-content ui-corner-all" data-history="false">
+	<div name="popupAlertDiv" data-role="popup" data-overlay-theme="b" class="ui-content ui-corner-all" data-history="false" data-tolerance="50">
 	</div>
 	<div name="popupMovieDiv" style="display:none" class="popupMovieDiv"  data-overlay-theme="b" data-corners="false" data-tolerance="10,50,10,20">
 		<a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>

@@ -44,13 +44,15 @@
 				onclick="event.preventDefault();tom.$OP(this, 'popupMenu').popup('close');tom.$OPC(this, 'pageDiv', 'popupLogoutDiv').popup('open');">ログアウト</a></li>
 			<li class="need-loged-in" data-icon=user><a
 				onclick='event.preventDefault();$.mobile.changePage("{{ $page->id}}/edit-profile",{reloadPage :true });'>個人設定</a></li>
+@if (!isset($aroundAtMode) || !$aroundAtMode)
 			<li class="need-loged-in" style="padding-top: 0; padding-bottom: 0"
 				data-role="divider" data-theme="a">Page Management</li>
 			<li class="need-loged-in" data-icon="edit"><a
 				onclick='event.preventDefault();$.mobile.changePage("{{ $page->id}}/edit-page");'>ページ編集</a></li>
 			<li class="need-loged-in" data-icon=file-text><a
 				onclick='event.preventDefault();$.mobile.changePage("{{ $page->id}}/create-child-page",{reloadPage :true });'>新規に子ページ作成</a></li>
-		</ul>
+@endif
+			</ul>
 	</div>
 	@endif
 </div>

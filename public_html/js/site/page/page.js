@@ -26,6 +26,7 @@ function pageSetup(event, ui) {
 
 	headerInit(page);
 
+	var messageInputDiv = tom.$OC(page, "messageInputDiv");
 	var messagesUl = tom.$OC(page, "messagesUl");
 	if (messagesUl.length) {
 		messagesUl.listview({
@@ -36,14 +37,25 @@ function pageSetup(event, ui) {
 			}
 		});
 
+		var url = document.URL;
+		var param = {};
+		var isAoundMode = false;
+		if (document.URL.match(/.+\?around=.+/)) {
+			url = document.URL.replace(/^(.+)\?.+$/, "$1")+"/get-messages-around-at";
+			param.around = document.URL.replace(/^.+\?around=(.+)$/, "$1");
+			isAoundMode = true;
+			messageInputDiv.empty().append("<b>検索結果表示モードのため投稿はできません。子ページも表示されません。</b><hr>");
+		} else {
+			url += "/get-latest-xmessages"
+		}
 		if (!messagesUl.attr("user-data-once-refreshed")) {
 			tom.$OC(page, "messageGetOlderA").hide();
 			tom.$OC(messagesUl, "messagePollProgressDiv").text("⇔");
 			var query = function() {
-				scope.simpleAjax(document.URL + "/get-latest-xmessages", {}).done(function(result, textStatus, xhr) {
+				scope.simpleAjax(url, param).done(function(result, textStatus, xhr) {
 					$("li", messagesUl).remove();
 					chatAppendMessagesUl(page, result, "top", true);
-					chatPollMessage(page);
+					if (!isAoundMode) chatPollMessage(page);
 				}).fail(function() {
 					var li = $("li", messagesUl);
 					li.text(li.text() + ".fail retrying..");
@@ -52,11 +64,9 @@ function pageSetup(event, ui) {
 			};
 			query();
 		} else {
-			chatPollMessage(page);
+			if (!isAoundMode) chatPollMessage(page);
 		}
 	}
-
-	var messageInputDiv = tom.$OC(page, "messageInputDiv");
 
 	$(":file", page).each(
 			function(i, fileInput) {
@@ -68,7 +78,7 @@ function pageSetup(event, ui) {
 				fileInput.css("display", "");
 			});
 
-	if (messageInputDiv.length) {
+	if (messageInputDiv.length && !isAoundMode) {
 
 		var messageTxt = tom.$OC(messageInputDiv, "messageTxt");
 		var messageSubmitBtn = tom.$OC(messageInputDiv, "messageSubmitBtn");
@@ -96,6 +106,27 @@ function pageSetup(event, ui) {
 	}
 
 	$(".naviSelected", tom.$AP()).addClass("ui-btn-active");
+
+	var dataVersion = page.attr("data-version");
+	if (dataVersion && dataVersion != myJsVersion) {
+		pageAlert({description: "サイトがバージョン<b>'v."+dataVersion+"'</b>にアップしました。<br><br>お手数ですが<b>ブラウザの再読み込み</b>をお願いします。", stack: ""});
+	}
+
+	var naviSearchDiv = tom.$OC(page, "naviSearchDiv");
+	if (naviSearchDiv.length) {
+		var siteSearchKeywordTxt = tom.$OC(naviSearchDiv, "siteSearchKeywordTxt");
+		var siteSearchBtn = tom.$OC(naviSearchDiv, "siteSearchBtn");
+		siteSearchBtn.button();
+		var siteSearchBtnControl = function() {
+			if (siteSearchKeywordTxt.val().length == 0 || siteSearchBtn.attr("user-data-submitting")) {
+				siteSearchBtn.button("disable").button("refresh");
+			} else {
+				siteSearchBtn.button("enable").button("refresh");
+			}
+			scope.wait(2000).done(siteSearchBtnControl);
+		};
+		siteSearchBtnControl();
+	}
 }
 
 function pageDestroy(event, ui) {
@@ -157,13 +188,13 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 		divC = $("<div class='" + (isOwner ? "chatTimeAndNameBoxModOwner" : "") + " chatTimeAndNameBoxBase' style='padding-right:0em;'/>");
 		var divCC = $("<div class='table'/>");
 		var divCCR = $("<div class='row'/>");
-		var divCCCtimeName = $("<div style='padding-right:0em;'/>").append($.format.date(val.updated_at, "HH:mm")).append("<br/>").append(val.userName);
+		var divCCCtimeName = $("<div style='padding-right:0em; font-size: 70%; min-width: 5em; max-width: 5em; white-space: normal; word-break: break-all; '/>").append($.format.date(val.updated_at, "HH:mm")).append("<br/>").append(val.userName);
 		var faceImg;
 		if (val.imgFace)
-			faceImg = $("<img style='margin-right:1em;'/>").attr("src", val.imgFace);
+			faceImg = $("<img style='margin-right:1em; max-height: 3em; max-width: 3em; '/>").attr("src", val.imgFace);
 		var emotionImg;
 		if (val.imgEmotion) {
-			emotionImg = $("<img/>").attr("src", val.imgEmotion);
+			emotionImg = $("<img style='max-height: 2em; max-width: 2em; ' />").attr("src", val.imgEmotion);
 			if (faceImg) {
 				emotionImg.css({
 					position : "absolute",
@@ -262,9 +293,10 @@ function getOlderMessage(self) {
 		olderMessageId : lastMessageLi.attr("user-data-posted-id"),
 		boost : self.attr("data-get-boost"),
 	};
+	var docUrl = document.URL.replace(/^(.+)\?.+$/, "$1");
 	var scope = tom.$scope(page);
 	var query = function() {
-		scope.simpleAjax(document.URL + "/get-older-messages", postData).done(function(result, textStatus, xhr) {
+		scope.simpleAjax(docUrl + "/get-older-messages", postData).done(function(result, textStatus, xhr) {
 			img.attr("src", img.attr("data-img-bk"));
 			img.removeAttr("data-img-bk");
 			messageGetOlderA.removeClass("ui-disabled");
@@ -559,7 +591,7 @@ function chatAppendImage(event, self) {
 	var messageInputDiv = tom.$OC(page, "messageInputDiv");
 	var chatAttachImagesDiv = tom.$OC(messageInputDiv, "chatAttachImagesDiv");
 	var chatAttachFilesDiv = tom.$OC(messageInputDiv, "chatAttachFilesDiv");
-	appendImageToDiv(event, 200, null, chatAttachImagesDiv, chatAttachFilesDiv);
+	appendImageToDiv(event, 200, null, chatAttachImagesDiv, chatAttachFilesDiv, 10);
 }
 
 function chatImageClick(event) {
@@ -599,9 +631,8 @@ function profileAppendImage(event, self) {
 	appendImageToDiv(event, 48);
 }
 
-function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
+function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv, maxCount) {
 	var maxSize = 10*1024*1024;
-	var maxCount = 10;
 	var fileInp = event.target;
 	var imagesDiv = imagesDiv ? imagesDiv : $(fileInp).next(":first");
 	var sizeOverFiles = [];
@@ -621,7 +652,7 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv) {
 							sizeOverFiles.push(fileInfo.name);
 							return;
 						}
-						if (startCount + idx + 1 > maxCount) {
+						if (maxCount && startCount + idx + 1 > maxCount) {
 							countOverFiles.push(fileInfo.name);
 							return;
 						}
@@ -1070,4 +1101,69 @@ function confirmDialog(message, callback) {
 	tom.$OC(confirmDiv, "message").empty().append(message);
 	confirmDiv.popup();
 	confirmDiv.popup('open');
+}
+
+function siteSearch(siteSearchBtn) {
+	var page = tom.$AP();
+	var scope = tom.$scope(page);
+	siteSearchBtn = $(siteSearchBtn);
+	var siteSearchKeywordTxt=tom.$OC(page, "siteSearchKeywordTxt");
+	var searchKeyword = siteSearchKeywordTxt.val().replace(/^[\s　]+|[\s　]+$/g, "");
+	siteSearchKeywordTxt.val(searchKeyword);
+
+	if (searchKeyword.length == 0) {
+		pageAlert({description: "空白文字だけの検索条件は指定できません", stack: ""});
+		return false;
+	}
+
+	if(siteSearchBtn.attr("user-data-submitting")) {
+		siteSearchBtn.button("disable").button("refresh");
+		return false;
+	}
+	siteSearchBtn.attr("user-data-submitting", true);
+
+	var postData = {
+			searchKeyword : searchKeyword,
+		}
+	siteSearchBtn.val("検中..").button("refresh");
+	var searchResultDiv = tom.$OC(page, "searchResultDiv");
+	searchResultDiv.empty().append($('<image src="/image/site/ajax-loader.gif">'));
+
+		scope.simpleAjax(getSitegUrl() + "/site-search", postData).done(function(result, textStatus, xhr) {
+			siteSearchBtn.val("検索").button("refresh");
+			searchResultDiv.empty();
+			if (result.messages.length ==0) {
+				searchResultDiv.append("一致する情報は見つかりませんでした");
+				return;
+			}
+			var keywords = result.keywords;
+			var hitPageInfo = {};
+			$.each(result.hitPageInfo, function(i, val) {
+				hitPageInfo[val.id] = val;
+			});
+
+			$.each(result.messages, function(i, val) {
+				var divHit = $('<div class="searchResult">');
+				var hitPage = hitPageInfo[val.page];
+				var anch = $('<a>').attr("href", hitPage.id+"?around="+val.id);
+				var title = $('<div class="searchResultTitle">').append("["+(i+1)+"] "+hitPage.title);
+				anch.append(title);
+				var subTitle = $('<div class="searchResultSubtitle">').append(val.updated_at+" "+val.userName);
+				anch.append(subTitle);
+				divHit.append(anch);
+				var message = val.message;
+				$.each(keywords, function(i, keyword) {
+					message = message.replace(new RegExp(keyword.replace(/./,"\\$&"),"ig"), '<span class="searchKeyHighlight">$&</span>').replace(/(<br \/>\r\n)*$/, "");
+				});
+				var hitContents = $('<div class="searchResultContents">').append(message);
+				divHit.append(hitContents);
+				searchResultDiv.append(divHit);
+			});
+		}).fail(function(result, textStatus, xhr) {
+			siteSearchBtn.val("err:" + textStatus).button("refresh");
+			searchResultDiv.empty();
+		}).always(function() {
+			siteSearchBtn.removeAttr("user-data-submitting");
+			siteSearchBtn.button("enable").button("refresh");
+		});
 }

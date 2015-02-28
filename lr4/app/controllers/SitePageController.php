@@ -1,10 +1,16 @@
 <?php
-class SitePageController extends \BaseController {
+class SitePageController extends BaseController {
 	const LAST_X_MESSAGE_LENGTH = 20;
+	const AROUND_AT_MESSAGE_LENGTH = 10;
 	const PAGING_LENGTH = 50;
 	const LATEST_UPDATE_TOP_NUM = 5;
 	const IMAGE_EMOTIONS = "image/site/chat/emotions/";
 	public function getIndex(Site $site, $pageIndex = 'home') {
+		$data = Input::all ();
+		$aroundAtMode = false;
+		if ( array_key_exists ( 'around', $data )) {
+			$aroundAtMode = true;
+		}
 		$pageWhere = Page::where ( 'site', $site->id );
 		if ($pageIndex == "index")
 			$pageIndex = "home";
@@ -14,7 +20,11 @@ class SitePageController extends \BaseController {
 			$pageWhere = $pageWhere->where ( 'id', $pageIndex );
 		}
 		$page = $pageWhere->first ();
-		$childPages = Page::where ( 'site', $site->id )->where ( 'parent', $page->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
+		$childPages = null;
+		$breadCrumb = null;
+		if (!$aroundAtMode) {
+			$childPages = Page::where ( 'site', $site->id )->where ( 'parent', $page->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
+		}
 		$breadCrumb = $this->getBreadCrumbList ( $page );
 
 		$userName = MySession::getUserName ( $site->id );
@@ -27,7 +37,9 @@ class SitePageController extends \BaseController {
 				'emotions' => $this->getEmotionCatalog ( $site ),
 				'userName' => $userName,
 				'isEditable' => ($pageIndex == "home") ? false : true,
-				'breadCrumb' => $breadCrumb
+				'breadCrumb' => $breadCrumb,
+				'version' => MyVersion::VER,
+				'aroundAtMode' => $aroundAtMode
 		) );
 	}
 	public function anyGetAllPages(Site $site, $pageIndex) {
@@ -71,6 +83,24 @@ class SitePageController extends \BaseController {
 		if (count ( $ret ['messages'] ) < self::LAST_X_MESSAGE_LENGTH) {
 			$ret ['noMoreMessages'] = true;
 		}
+
+		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
+
+		return Response::json ( $ret );
+	}
+	public function anyGetMessagesAroundAt(Site $site, $pageIndex = null) {
+		if (! $pageIndex)
+			App::abort ( 404, "Invalid #Page" );
+		$data = Input::all ();
+		$aroundAt = $data['around'];
+		$messagesLower = array_reverse(Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where( 'id', '<=', $aroundAt)->orderBy ( 'id', 'desc' )->take ( self::AROUND_AT_MESSAGE_LENGTH / 2 -1)->get () ->toArray());
+		$messagesUpper = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where( 'id', '>', $aroundAt)->orderBy ( 'id', 'asc' )->take ( self::AROUND_AT_MESSAGE_LENGTH / 2)->get () ->toArray();
+		$messages = array_merge($messagesLower, $messagesUpper);
+		foreach ( $messages as &$message ) {
+			$message["images"] = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message["images"] );
+			$message["files"] = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message["files"] );
+		}
+		$ret ['messages'] = $messages;
 
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
 
@@ -299,7 +329,8 @@ class SitePageController extends \BaseController {
 				'isEditable' => false,
 				'isNewPage' => false,
 				'sitePages' => $sitePages,
-				'parentPage' => $parentPage
+				'parentPage' => $parentPage,
+				'version' => MyVersion::VER
 		) );
 	}
 	public function anySavePageEdit(Site $site, $pageIndex = null) {
@@ -402,7 +433,8 @@ class SitePageController extends \BaseController {
 				'childPages' => null,
 				'userName' => $userName,
 				'isEditable' => false,
-				'isNewPage' => true
+				'isNewPage' => true,
+				'version' => MyVersion::VER
 		) );
 	}
 	public function anyDeletePage(Site $site, $pageIndex = null) {
@@ -478,7 +510,8 @@ class SitePageController extends \BaseController {
 				'user' => $user,
 				'userIconImgs' => $userIconImgs,
 				'isEditable' => false,
-				'isNewProfile' => false
+				'isNewProfile' => false,
+				'version' => MyVersion::VER
 		) );
 	}
 	public function anySaveProfileEdit(Site $site, $pageIndex = null) {

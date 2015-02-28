@@ -10,7 +10,7 @@
 			<li><a href="#" onclick="topNaviShow('naviTopContentsDiv',this)" class="ui-btn-active naviSelected" data-icon="home">TOP</a></li>
 			<li><a href="#" onclick="topNaviShow('naviLatestContentsDiv',this)" data-icon="star">最新</a></li>
 			<li><a href="#" onclick="showSiteMap('naviSiteMpDiv',this)" data-icon="sitemap">マップ</a></li>
-			<li><a href="#" onclick="topNaviShow('naviSearchDiv',this)" data-icon="spinner">[準備中]</a></li>
+			<li><a href="#" onclick="topNaviShow('naviSearchDiv',this)" data-icon="search">検索</a></li>
 		</ul>
 	</div>
 	<div name="naviTopContentsDiv" class="topNavi">
@@ -49,8 +49,16 @@
 		</div>
 	</div>
 	<div name="naviSearchDiv" class="topNavi" style="display:none;">
-		<div style="height: 4em; padding-top:2em">
-			under construnction...
+		サイト検索
+		<div style="">
+			<table width="100%">
+				<tr>
+					<td><input type="text" name="siteSearchKeywordTxt"></td><td width="1"><input type="button" name="siteSearchBtn" data-icon="search" data-inline="true" data-mini="true" data-iconpos="bottom" disabled  onclick="siteSearch(this)" value="検索"></td>
+				</tr>
+			</table>
+		</div>
+		<div name="searchResultDiv">
+			検索件数は{{SiteController::SEARCH_PAGING}}件です。日付の新しい順に並びます。
 		</div>
 	</div>
 
@@ -73,7 +81,7 @@
 <div class="grad"
 	style="padding: 0.5em; margin-top: 3em; font-family: Verdana, Roboto, sans-serif;">
 	<div style="font-size: 8pt; padding-right: 1em">
-		android標準ブラウザで動きおかしい方は<a class="ui-link" href="market://details?id=org.mozilla.firefox"><img src="/image/site/firefox.png" alt="">FireFoxブラウザ</a>や<a class="ui-link" href="market://details?id=com.android.chrome"><img src="/image/site/chrome.png" alt="">Chromeブラウザ</a>でもお試しください。左記リンクからGooglePlayインストール画面に飛べます。<br>
+		android標準ブラウザで動きおかしい方は<a class="ui-link" href="market://details?id=com.android.chrome"><img src="/image/site/chrome.png" alt="">Chromeブラウザ</a>や<a class="ui-link" href="market://details?id=org.mozilla.firefox"><img src="/image/site/firefox.png" alt="">FireFoxブラウザ</a>でもお試しください。左記リンクからGooglePlayインストール画面に飛べます。<br>
 
 		<a style="padding: 0; margin: 0" href="http://cool-liberty.com/"
 			target="_blank"><img style="vertical-align: middle;"
@@ -86,7 +94,7 @@
 			src="http://www.xserver.ne.jp/common/img/header/logo.gif" width="80"
 			height="15" /></a><br />
 	</div>
-	<div style="text-align: right; padding-right: 1em">supported by tomomi</div>
+	<div style="text-align: right; padding-right: 1em">supported by tomomi (v.<span>{{$version}})</span></div>
 </div>
 @stop
 

@@ -8,7 +8,7 @@
 {{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->body)}}
 </div>
 <div style="clear:both">
-@if(!$childPages->isEmpty())
+@if($childPages && !$childPages->isEmpty())
 	<ul data-role="listview" data-inset="true">
 @foreach ($childPages as $child)
 		<li>
