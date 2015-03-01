@@ -71,11 +71,23 @@
 @endforeach
 	</div>
 </div>
+<div name="messageNavibarUp" data-role="navbar" style="margin-right:6px; ">
+	<ul>
+		<li><a data-role="button" name="messageGetNewerA"
+			style="padding: 0; display: none" onclick="getNewerMessage(this)"><img
+				width="26" height="26" src="/image/site/uparrow_midori.png" /></a></li>
+		<li><a data-role="button" data-get-boost="2" name="messageGetNewerA"
+			style="padding: 0; display: none" onclick="getNewerMessage(this)"><img
+				width="26" height="26" src="/image/site/uparrow_midori.png" />x2</a></li>
+		<li><a data-role="button" data-get-boost="3" name="messageGetNewerA"
+			style="padding: 0; display: none" onclick="getNewerMessage(this)"><img
+				width="26" height="26" src="/image/site/uparrow_midori.png" />x3</a></li>
+	</ul>
+</div>
 <ul name="messagesUl" class="messageUL" style="position:relative;min-height:25px" data-role="listview"
 	data-inset="true">
 	<div name="messagePollProgressDiv" style="position:absolute; right:0; top: 0; color:gray;">??</div>
 	<li>loading...</li>
-
 </ul>
 <div data-role="navbar" style="margin-right:6px">
 	<ul>

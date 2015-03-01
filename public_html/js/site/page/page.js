@@ -39,11 +39,13 @@ function pageSetup(event, ui) {
 
 		var url = document.URL;
 		var param = {};
-		var isAoundMode = false;
+		var isAroundMode = false;
+		var hitMessageId = null;
 		if (document.URL.match(/.+\?around=.+/)) {
 			url = document.URL.replace(/^(.+)\?.+$/, "$1")+"/get-messages-around-at";
-			param.around = document.URL.replace(/^.+\?around=(.+)$/, "$1");
-			isAoundMode = true;
+			var hitMessageId = document.URL.replace(/^.+\?around=(.+)$/, "$1");
+			param.around = hitMessageId;
+			isAroundMode = true;
 			messageInputDiv.empty().append("<b>検索結果表示モードのため投稿はできません。子ページも表示されません。</b><hr>");
 		} else {
 			url += "/get-latest-xmessages"
@@ -54,8 +56,14 @@ function pageSetup(event, ui) {
 			var query = function() {
 				scope.simpleAjax(url, param).done(function(result, textStatus, xhr) {
 					$("li", messagesUl).remove();
-					chatAppendMessagesUl(page, result, "top", true);
-					if (!isAoundMode) chatPollMessage(page);
+					if (isAroundMode) {
+						chatAppendMessagesUl(page, result, "top", true, null ,true);
+						$hitLi = messagesUl.find("[user-data-posted-id='"+hitMessageId+"']");
+						$hitLi.css("border", "2px solid red");
+					} else {
+						chatAppendMessagesUl(page, result, "top", true);
+						chatPollMessage(page);
+					}
 				}).fail(function() {
 					var li = $("li", messagesUl);
 					li.text(li.text() + ".fail retrying..");
@@ -64,7 +72,7 @@ function pageSetup(event, ui) {
 			};
 			query();
 		} else {
-			if (!isAoundMode) chatPollMessage(page);
+			if (!isAroundMode) chatPollMessage(page);
 		}
 	}
 
@@ -78,7 +86,7 @@ function pageSetup(event, ui) {
 				fileInput.css("display", "");
 			});
 
-	if (messageInputDiv.length && !isAoundMode) {
+	if (messageInputDiv.length && !isAroundMode) {
 
 		var messageTxt = tom.$OC(messageInputDiv, "messageTxt");
 		var messageSubmitBtn = tom.$OC(messageInputDiv, "messageSubmitBtn");
@@ -164,7 +172,7 @@ function headerInit(page) {
 	}
 }
 
-function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messagesUl) {
+function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messagesUl, doControlGetNewerA) {
 	if (direction == "bottom")
 		result.messages.reverse();
 	var authedUserName = result.authedUserName;
@@ -265,10 +273,18 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 
 	if (doControlGetOlderA) {
 		var messageGetOlderA = tom.$OC(page, "messageGetOlderA");
-		if (result.noMoreMessages) {
+		if (result.noMoreOlderMessages) {
 			messageGetOlderA.hide();
 		} else {
 			messageGetOlderA.show();
+		}
+	}
+	if (doControlGetNewerA) {
+		var messageGetNewerA = tom.$OC(page, "messageGetNewerA");
+		if (result.noMoreNewerMessages) {
+			messageGetNewerA.hide();
+		} else {
+			messageGetNewerA.show();
 		}
 	}
 }
@@ -301,6 +317,46 @@ function getOlderMessage(self) {
 			img.removeAttr("data-img-bk");
 			messageGetOlderA.removeClass("ui-disabled");
 			chatAppendMessagesUl(page, result, 'bottom', true);
+		}).fail(function() {
+			scope.wait(10000).done(query);
+		})
+	};
+	query();
+}
+
+
+function getNewerMessage(self) {
+	self = $(self);
+	var page = tom.$AP();
+	var messagesUl = tom.$OC(page, "messagesUl");
+	var lastMessageLi = messagesUl.children(":eq(1)");
+	if (lastMessageLi.length == 0)
+		return;
+
+	var messageGetNewerA = tom.$OC(page, "messageGetNewerA");
+	var img = $("img", messageGetNewerA);
+	if (!img.attr("data-img-bk")) {
+		img.attr("data-img-bk", img.attr("src"));
+		img.attr("src", "/image/site/ajax-loader.gif");
+	}
+	messageGetNewerA.addClass("ui-disabled");
+
+	var postData = {
+		newerMessageId : lastMessageLi.attr("user-data-posted-id"),
+		boost : self.attr("data-get-boost"),
+	};
+	var docUrl = document.URL.replace(/^(.+)\?.+$/, "$1");
+	var scope = tom.$scope(page);
+	var query = function() {
+		scope.simpleAjax(docUrl + "/get-newer-messages", postData).done(function(result, textStatus, xhr) {
+			img.attr("src", img.attr("data-img-bk"));
+			img.removeAttr("data-img-bk");
+			messageGetNewerA.removeClass("ui-disabled");
+			var scrollTopBefore = $(window).scrollTop();
+			var lastMessageLiTopBefore = lastMessageLi.offset();
+			chatAppendMessagesUl(page, result, 'top', false, null, true);
+			var lastMessageLiTopAfter = lastMessageLi.offset();
+			jQuery.mobile.silentScroll( scrollTopBefore + lastMessageLiTopAfter.top - lastMessageLiTopBefore.top );
 		}).fail(function() {
 			scope.wait(10000).done(query);
 		})

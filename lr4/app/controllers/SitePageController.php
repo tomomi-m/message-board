@@ -93,8 +93,10 @@ class SitePageController extends BaseController {
 			App::abort ( 404, "Invalid #Page" );
 		$data = Input::all ();
 		$aroundAt = $data['around'];
-		$messagesLower = array_reverse(Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where( 'id', '<=', $aroundAt)->orderBy ( 'id', 'desc' )->take ( self::AROUND_AT_MESSAGE_LENGTH / 2 -1)->get () ->toArray());
-		$messagesUpper = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where( 'id', '>', $aroundAt)->orderBy ( 'id', 'asc' )->take ( self::AROUND_AT_MESSAGE_LENGTH / 2)->get () ->toArray();
+		$takeOlderCount = self::AROUND_AT_MESSAGE_LENGTH / 2 -1;
+		$takeNewerCount = self::AROUND_AT_MESSAGE_LENGTH / 2;
+		$messagesLower = array_reverse(Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where( 'id', '<=', $aroundAt)->orderBy ( 'id', 'desc' )->take ( $takeOlderCount)->get () ->toArray());
+		$messagesUpper = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where( 'id', '>', $aroundAt)->orderBy ( 'id', 'asc' )->take ( $takeNewerCount)->get () ->toArray();
 		$messages = array_merge($messagesLower, $messagesUpper);
 		foreach ( $messages as &$message ) {
 			$message["images"] = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message["images"] );
@@ -104,6 +106,12 @@ class SitePageController extends BaseController {
 
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
 
+			if (count ( $messagesLower ) < $takeOlderCount) {
+			$ret ['noMoreOlderMessages'] = true;
+		}
+		if (count ( $messagesUpper) < $takeNewerCount) {
+			$ret ['noMoreNewerMessages'] = true;
+		}
 		return Response::json ( $ret );
 	}
 	public function postAddMessage(Site $site, $pageIndex = null) {
@@ -232,7 +240,30 @@ class SitePageController extends BaseController {
 		}
 		$ret ['messages'] = array_reverse ( $messages->toArray () );
 		if (count ( $ret ['messages'] ) < $pagingLength) {
-			$ret ['noMoreMessages'] = true;
+			$ret ['noMoreOlderMessages'] = true;
+		}
+		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
+		return Response::json ( $ret );
+	}
+	public function anyGetNewerMessages(Site $site, $pageIndex = null) {
+		if (! $pageIndex)
+			App::abort ( 404, "Invalid #Page" );
+		$data = Input::all ();
+		if (! array_key_exists ( 'newerMessageId', $data )) {
+			App::abort ( 404, "Invalid newerMessageId" );
+		}
+		$pagingLength = self::PAGING_LENGTH;
+		if (array_key_exists ( 'boost', $data )) {
+			$pagingLength *= $data ["boost"];
+		}
+		$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->where ( 'id', '>', $data ['newerMessageId'] )->orderBy ( 'id', 'asc' )->take ( $pagingLength )->get ();
+		foreach ( $messages as $message ) {
+			$message->images = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->images );
+			$message->files = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->files);
+		}
+		$ret ['messages'] = $messages->toArray ();
+		if (count ( $ret ['messages'] ) < $pagingLength) {
+			$ret ['noMoreNewerMessages'] = true;
 		}
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
 		return Response::json ( $ret );
