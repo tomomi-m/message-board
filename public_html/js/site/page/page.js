@@ -1212,6 +1212,7 @@ function siteSearch(siteSearchBtn) {
 				anch.append(subTitle);
 				divHit.append(anch);
 				var message = val.message;
+				if(!message) message="";
 				var foundPos = Number.MAX_VALUE;
 				$.each(keywords, function(i, keyword) {
 					foundPos = Math.min(foundPos, message.indexOf(keyword));
