@@ -1234,11 +1234,11 @@ function siteSearch(siteSearchBtn) {
 				var hitTr =$('<tr>');
 				var hitTd1 = $('<td>');
 				switch (val.type) {
-				case 1:
+				case "1":
 					hitTd1.append("ページ<br>");
 					hitTd1.append($('<img style="max-height: 4em; max-width: 4em; ">').attr('src', hitPageInfo[val.pageId].thumb));
 					break;
-				case 2:
+				case "2":
 					hitTd1.append("ﾒｯｾｰｼﾞ<br>");
 					var faceImg = null;
 					if (val.imgFace)

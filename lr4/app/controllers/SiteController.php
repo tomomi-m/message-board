@@ -69,7 +69,7 @@ class SiteController extends BaseController {
 			return "{'err': 'no keyword..'}";
 		}
 		$keywords = preg_split("/[\s]+/", $keyword);
-		$queryForPage = DB::table('pages')->select(DB::raw('1 as type, id as pageId, null as messageId, title, body_for_search as message, updated_by as userName, null as imgFace, null as imgEmotion, updated_at'));
+		$queryForPage = DB::table('pages')->select(DB::raw('\'1\' as type, id as pageId, null as messageId, title, body_for_search as message, updated_by as userName, null as imgFace, null as imgEmotion, updated_at'));
 		$queryForPage ->where ( 'site', $site->id );
 		foreach ( $keywords as $queryKey ) {
 			$queryForPage ->where(function($query) use (&$queryKey){
@@ -77,7 +77,7 @@ class SiteController extends BaseController {
                       ->orWhere('body_for_search', 'like', "%{$queryKey}%");
             });
 		}
-		$queryForMessage = DB::table('messages')->select(DB::raw('2, page, id, null, message, userName, imgFace, imgEmotion, updated_at'));
+		$queryForMessage = DB::table('messages')->select(DB::raw('\'2\', page, id, null, message, userName, imgFace, imgEmotion, updated_at'));
 		$queryForMessage->where ( 'site', $site->id );
 		foreach ( $keywords as $queryKey ) {
 			$queryForMessage ->where ( 'message', 'like', "%{$queryKey}%");
