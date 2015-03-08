@@ -81,7 +81,7 @@ class SitePageController extends BaseController {
 		}
 		$ret ['messages'] = array_reverse ( $messages->toArray () );
 		if (count ( $ret ['messages'] ) < self::LAST_X_MESSAGE_LENGTH) {
-			$ret ['noMoreMessages'] = true;
+			$ret ['noMoreOlderMessages'] = true;
 		}
 
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
@@ -339,7 +339,7 @@ class SitePageController extends BaseController {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
 
-		$isValidLogin = $this->validateLogin($site);
+		$isValidLogin = MySession::validateLogin($site->id);
 		if ($isValidLogin)
 			return $isValidLogin;
 
@@ -384,7 +384,7 @@ class SitePageController extends BaseController {
 			if (! $page)
 				App::abort ( 404, "Not exist #PageID" );
 			//backup prev page data
-			DB::insert('insert into pagebaks (id,site,title,background,thumbnail,body,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by) select id,site,title,background,thumbnail,body,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by from pages where site=? and id=?', array($site->id, $pageIndex));
+			DB::insert('insert into pagebaks (id,site,title,background,thumbnail,body,body_for_search,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by) select id,site,title,background,thumbnail,body,body_for_search,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by from pages where site=? and id=?', array($site->id, $pageIndex));
 
 			if (isset ( $data ['parent'] ))
 				$page->parent = $data ['parent'];
@@ -406,13 +406,42 @@ class SitePageController extends BaseController {
 			}
 			throw $e;
 		}
+		$this->makeBodySearchText($page);
+
 		$userName = MySession::getUserName ( $site->id );
 		$page->updated_by = $userName;
+
 		$page->save ();
 		return Response::json ( array (
 				'body' => str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $page->site, $page->body ),
 				'thumbnail' => str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $page->site, $page->thumbnail )
 		) );
+	}
+	public static function makeBodySearchText(Page $page) {
+		$body = $page->body;
+		if (!$body) {
+			$page -> body_for_search = $body;
+			return;
+		}
+		$body = preg_replace("/<\/(h\d|div|li|p|table|tr)>/", "$0<br>", $body);
+		$body = preg_replace("/<br *\/?>/", "<br>", $body);
+		$body = str_replace("<br>", "<br>\r", $body);
+ 		$body = strip_tags($body);
+ 		$body = htmlspecialchars_decode($body);
+ 		$body = html_entity_decode($body);
+ 		$body = strtr($body, array_fill_keys(array("\r\n", "\r", "\n"), "\r"));
+ 		$body = preg_replace("/(\r){2,}/","\r\r", $body);
+ 		$body = preg_replace("/\r+$/","", $body);
+ 		$body = preg_replace("/\xC2\xA0/", " ", $body );
+ 		$body = preg_replace("/\s{2,}/"," ", $body);
+ 		$body = preg_replace("/^\s+|\s+$/m","", $body);
+ 		$body = preg_replace("/^\r/m","", $body);
+ 		$body = preg_replace("/$/m","<br>", $body);
+ 		if ($body == "<br>\r") {
+			$body = null;
+		}
+
+		$page -> body_for_search = $body;
 	}
 	function parsePageBodyImage($page) {
 		// if (!$body) return $body;
@@ -447,7 +476,7 @@ class SitePageController extends BaseController {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
 
-		$isValidLogin = $this->validateLogin($site);
+		$isValidLogin = MySession::validateLogin($site->id);
 		if ($isValidLogin)
 			return $isValidLogin;
 
@@ -472,7 +501,7 @@ class SitePageController extends BaseController {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
 
-		$isValidLogin = $this->validateLogin($site);
+		$isValidLogin = MySession::validateLogin($site->id);
 		if ($isValidLogin)
 			return $isValidLogin;
 
@@ -517,7 +546,7 @@ class SitePageController extends BaseController {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
 
-		$isValidLogin = $this->validateLogin($site);
+		$isValidLogin = MySession::validateLogin($site->id);
 		if ($isValidLogin)
 			return $isValidLogin;
 
@@ -616,14 +645,6 @@ class SitePageController extends BaseController {
 			return null;
 
 		$response = Response::make ( '{"r":"are you human?"}', 202 );
-		return $response;
-	}
-	function validateLogin(Site $site) {
-		$isHuman = MySession::getUserId ( $site->id );
-		if ($isHuman)
-			return null;
-
-		$response = Response::make ( 'Unauthorized', 403 );
 		return $response;
 	}
 

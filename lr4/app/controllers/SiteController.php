@@ -69,18 +69,30 @@ class SiteController extends BaseController {
 			return "{'err': 'no keyword..'}";
 		}
 		$keywords = preg_split("/[\s]+/", $keyword);
-		$query = Message::where ( 'site', $site->id );
+		$queryForPage = DB::table('pages')->select(DB::raw('1 as type, id as pageId, null as messageId, title, body_for_search as message, updated_by as userName, null as imgFace, null as imgEmotion, updated_at'));
+		$queryForPage ->where ( 'site', $site->id );
 		foreach ( $keywords as $queryKey ) {
-			$query ->where ( 'message', 'like', "%{$queryKey}%");
+			$queryForPage ->where(function($query) use (&$queryKey){
+                $query->where('title', 'like', "%{$queryKey}%")
+                      ->orWhere('body_for_search', 'like', "%{$queryKey}%");
+            });
 		}
-		$messages = $query ->orderBy ( 'updated_at', 'desc' )->take (self::SEARCH_PAGING )->get ();
+		$queryForMessage = DB::table('messages')->select(DB::raw('2, page, id, null, message, userName, imgFace, imgEmotion, updated_at'));
+		$queryForMessage->where ( 'site', $site->id );
+		foreach ( $keywords as $queryKey ) {
+			$queryForMessage ->where ( 'message', 'like', "%{$queryKey}%");
+		}
+		$queryUnion = $queryForPage->union($queryForMessage);
+		$results = $queryUnion ->orderBy ( 'updated_at', 'desc' )->take (self::SEARCH_PAGING )->get ();
+
 		$retPageIds = array();
-		foreach ( $messages as $message ) {
-			$message->images = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->images );
-			$message->files = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->files );
-			$retPageIds[ $message->page ] = '1';
+		foreach ( $results as $result ) {
+			$result->imgFace = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $result->imgFace );
+			$result->imgEmotion = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $result->imgEmotion );
+			$retPageIds[ $result->pageId ] = '1';
 		}
-		$ret ['messages'] = $messages->toArray ();
+
+		$ret ['searchResults'] = $results;
 
 		$retPagesDef = array();
 		if (count($retPageIds) > 0) {
@@ -96,11 +108,29 @@ class SiteController extends BaseController {
 		}
 		$ret ['hitPageInfo'] = $retPagesDef;
 
-		if (count ( $ret ['messages'] ) < self::SEARCH_PAGING) {
-			$ret ['noMoreMessages'] = true;
+		if (count ( $results ) < self::SEARCH_PAGING) {
+			$ret ['noMoreSearchResults'] = true;
 		}
 
 		$ret[ 'keywords' ] = $keywords;
 		return Response::json ( $ret );
+	}
+
+	public function anyMakeBodySearchTextAllPage(Site $site) {
+		$isValidLogin = MySession::validateLogin($site->id);
+		if ($isValidLogin)
+			return $isValidLogin;
+		$pages = Page::where ( 'site', $site->id ) -> get();
+		$updateCount=0;
+		foreach ($pages as $page) {
+			SitePageController::makeBodySearchText($page);
+			DB::update ( "update pages set body_for_search=? where site=? and id= ?", array (
+					$page->body_for_search,
+					$site->id,
+					$page->id
+			) );
+			$updateCount++;
+		}
+		return "Updated page: " . $updateCount;
 	}
 }

@@ -69,4 +69,13 @@ class MySession {
 		self::newUser ( $siteId, $userName );
 		return ($siteUser != null);
 	}
+
+	public static function validateLogin($siteId) {
+		$isHuman = MySession::getUserId ( $siteId );
+		if ($isHuman)
+			return null;
+
+		$response = Response::make ( 'Unauthorized', 403 );
+		return $response;
+	}
 }

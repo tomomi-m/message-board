@@ -1188,7 +1188,7 @@ function siteSearch(siteSearchBtn) {
 		scope.simpleAjax(getSitegUrl() + "/site-search", postData).done(function(result, textStatus, xhr) {
 			siteSearchBtn.val("検索").button("refresh");
 			searchResultDiv.empty();
-			if (result.messages.length ==0) {
+			if (result.searchResults.length ==0) {
 				searchResultDiv.append("一致する情報は見つかりませんでした");
 				return;
 			}
@@ -1198,20 +1198,71 @@ function siteSearch(siteSearchBtn) {
 				hitPageInfo[val.id] = val;
 			});
 
-			$.each(result.messages, function(i, val) {
+			$.each(result.searchResults, function(i, val) {
 				var divHit = $('<div class="searchResult">');
-				var hitPage = hitPageInfo[val.page];
-				var anch = $('<a>').attr("href", hitPage.id+"?around="+val.id);
-				var title = $('<div class="searchResultTitle">').append("["+(i+1)+"] "+hitPage.title);
+				var hitPage = hitPageInfo[val.pageId];
+				var anch = $('<a>').attr("href", hitPage.id+((val.type==1)?"":"?around="+val.messageId));
+				var pageTitle = hitPage.title;
+				if (val.type == 1) {
+					pageTitle = highlightSearchKeyword(pageTitle, keywords);
+				}
+				var title = $('<div class="searchResultTitle">').append("["+(i+1)+"] ").append(pageTitle);
 				anch.append(title);
 				var subTitle = $('<div class="searchResultSubtitle">').append(val.updated_at+" "+val.userName);
 				anch.append(subTitle);
 				divHit.append(anch);
 				var message = val.message;
+				var foundPos = Number.MAX_VALUE;
 				$.each(keywords, function(i, keyword) {
-					message = message.replace(new RegExp(keyword.replace(/./,"\\$&"),"ig"), '<span class="searchKeyHighlight">$&</span>').replace(/(<br \/>\r\n)*$/, "");
+					foundPos = Math.min(foundPos, message.indexOf(keyword));
 				});
-				var hitContents = $('<div class="searchResultContents">').append(message);
+				if (foundPos == Number.MAX_VALUE) {
+					foundPos = 0;
+				}
+				var MESSAGE_DISP_MAX_LEN = 100;
+				var cutFrom = Math.max(0, foundPos - MESSAGE_DISP_MAX_LEN/2);
+				message = message.substring(cutFrom);
+				if (message.length > MESSAGE_DISP_MAX_LEN) {
+					message = message.substr(0, MESSAGE_DISP_MAX_LEN)+"......";
+				}
+				if (cutFrom > 0) {
+					message = "......" + message;
+				}
+				message = highlightSearchKeyword(message, keywords);
+				var hitTable = $('<table>');
+				var hitTr =$('<tr>');
+				var hitTd1 = $('<td>');
+				switch (val.type) {
+				case 1:
+					hitTd1.append("ページ<br>");
+					hitTd1.append($('<img style="max-height: 4em; max-width: 4em; ">').attr('src', hitPageInfo[val.pageId].thumb));
+					break;
+				case 2:
+					hitTd1.append("ﾒｯｾｰｼﾞ<br>");
+					var faceImg = null;
+					if (val.imgFace)
+						faceImg = $("<img style='margin-right:1em; max-height: 3em; max-width: 3em; '/>").attr("src", val.imgFace);
+					var emotionImg = null;
+					if (val.imgEmotion) {
+						emotionImg = $("<img style='max-height: 2em; max-width: 2em; ' />").attr("src", val.imgEmotion);
+						if (faceImg) {
+							emotionImg.css({
+								position : "absolute",
+								bottom : 0,
+								right: 0,
+							});
+						}
+					}
+					var divFace = $("<div style='min-width: 4em; position:relative;padding-right:0em;'/>").append(faceImg).append(emotionImg);
+					hitTd1.append(divFace);
+					break;
+				}
+				hitTr.append(hitTd1);
+				var hitTd2 = $('<td>');
+				hitTd2.append(message);
+				hitTr.append(hitTd2);
+				hitTable.append(hitTr);
+				var hitContents = $('<div class="searchResultContents">').append(hitTable);
 				divHit.append(hitContents);
 				searchResultDiv.append(divHit);
 			});
@@ -1222,4 +1273,11 @@ function siteSearch(siteSearchBtn) {
 			siteSearchBtn.removeAttr("user-data-submitting");
 			siteSearchBtn.button("enable").button("refresh");
 		});
+}
+
+function highlightSearchKeyword(str, keywords) {
+	$.each(keywords, function(i, keyword) {
+		str = str.replace(new RegExp(keyword.replace(/./,"\\$&"),"ig"), '<span class="searchKeyHighlight">$&</span>').replace(/(<br \/>\r\n)*$/, "");
+	});
+	return str;
 }
