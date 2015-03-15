@@ -222,7 +222,8 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 
 		divR.append(divC);
 		divC = $("<div style='padding-right:0em;'/>");
-		divC.append(val.message);
+		var messageWithUrl = val.message.replace(/(http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?)/gi, "<button style='margin:5px; padding: 5px;' class='ui-corner-all' onclick='openAnotherSite(this)'>$1</button>");
+		divC.append(messageWithUrl).trigger("create");
 		divR.append(divC);
 
 		divT.append(divR);
@@ -289,6 +290,12 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 	}
 }
 
+function openAnotherSite(openButton) {
+	var url = $(openButton).text();
+	confirmDialog("以下の別サイトを開きます。<br>よろしいですか？<br>"+url, function() {
+		window.open(url);
+	});
+}
 function getOlderMessage(self) {
 	self = $(self);
 	var page = tom.$AP();
