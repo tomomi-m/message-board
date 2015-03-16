@@ -222,7 +222,7 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 
 		divR.append(divC);
 		divC = $("<div style='padding-right:0em;'/>");
-		var messageWithUrl = val.message.replace(/(http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?)/gi, "<button style='margin:5px; padding: 5px;' class='ui-corner-all' onclick='openAnotherSite(this)'>$1</button>");
+		var messageWithUrl = val.message.replace(/(http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?)/gi, "<button style='margin:5px; padding: 5px; word-wrap: break-word; white-space: pre; max-width: 20em; text-align:left;' class='ui-corner-all' onclick='openAnotherSite(this)'>$1</button>");
 		divC.append(messageWithUrl).trigger("create");
 		divR.append(divC);
 
