@@ -19,6 +19,8 @@ $(document).on("popupafteropen.tomomi", ".popupLoginDiv", function() {
 
 $(document).on("click.tomomi", "[name ='pageContentsDiv'] img", pageImageClick);
 
+$(document).on("scroll.tomomi", onPageScroll);
+
 function pageSetup(event, ui) {
 	var page = tom.$AP();
 	var scope = new Scope();
@@ -134,6 +136,20 @@ function pageSetup(event, ui) {
 			scope.wait(2000).done(siteSearchBtnControl);
 		};
 		siteSearchBtnControl();
+	}
+
+	var scrollDiv = tom.$APC("scrollDiv");
+	if (scrollDiv.length > 0) {
+		scrollDiv.show();
+		scope.val.scrollDivControlLastScrollTime = new Date();
+		scope.val.scrollDivControlLastScrollTop = $(window).scrollTop();
+		var pageScrollDivAutoHider = function() {
+			if (new Date() - scope.val.scrollDivControlLastScrollTime > 3000) {
+				scrollDiv.hide();
+			}
+			scope.wait(2000).done(pageScrollDivAutoHider);
+		}
+		scope.wait(2000).done(pageScrollDivAutoHider);
 	}
 }
 
@@ -1288,4 +1304,20 @@ function highlightSearchKeyword(str, keywords) {
 		str = str.replace(new RegExp(keyword.replace(/./,"\\$&"),"ig"), '<span class="searchKeyHighlight">$&</span>').replace(/(<br \/>\r\n)*$/, "");
 	});
 	return str;
+}
+
+function onPageScroll() {
+	var scrollDiv = tom.$APC("scrollDiv");
+	if (scrollDiv.length == 0) {
+		return;
+	}
+	var page = tom.$AP();
+	var scope = tom.$scope(page);
+	var nowScrollTop = $(window).scrollTop();
+	var scrollDelta = Math.abs(nowScrollTop-scope.val.scrollDivControlLastScrollTop);
+	if (scrollDelta > 20) {
+			scrollDiv.show();
+	}
+	scope.val.scrollDivControlLastScrollTime = new Date();
+	scope.val.scrollDivControlLastScrollTop = nowScrollTop;
 }
