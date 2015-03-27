@@ -125,7 +125,7 @@ class SiteImage {
 		imagejpeg ( $imageNew, $filePathAbs, $quality );
 		imagedestroy ( $imageNew );
 	}
-	public function createImageFileAndThumbnailFileJpg($siteId, $imageDataStr, $squareSize = 1280, $squareSizeTh = 200) {
+	public function createImageFileAndThumbnailFileJpg($siteId, $imageDataStr, $squareSize = 1920, $squareSizeTh = 200) {
 		$imageParsed = $this->parseImageDataStr ( $imageDataStr );
 		$imageNewPath = $this->getNewImagePath ( $siteId );
 		$fileName = $imageNewPath ['imageFileNameNoExt'] . ".jpg";
