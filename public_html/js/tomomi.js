@@ -113,7 +113,7 @@ Scope.prototype = {
 		var defaults = {
 			type : "POST",
 			dataType : 'json',
-			timeout : 30000,
+			timeout : 60000,
 		};
 		var args = [];
 		for (var i = 0; i < arguments.length; i++) {
