@@ -151,6 +151,8 @@ function pageSetup(event, ui) {
 		}
 		scope.wait(2000).done(pageScrollDivAutoHider);
 	}
+
+	guidToSSL(page);
 }
 
 function pageDestroy(event, ui) {
@@ -1320,4 +1322,21 @@ function onPageScroll() {
 	}
 	scope.val.scrollDivControlLastScrollTime = new Date();
 	scope.val.scrollDivControlLastScrollTop = nowScrollTop;
+}
+
+function guidToSSL(page) {
+	if (document.location.protocol.indexOf("https") == 0) return;
+	if ($.cookie("tomomiRemindGuildSSL")) return;
+	var sslSite = page.attr("data-ssl-site");
+	if (!sslSite) return;
+
+	var scope = tom.$scope(page);
+	scope.wait(100).done(function() {
+		confirmDialog("<h3 style='text-align:center'>セキュアURLへ変更のお願い--Tomomi</h3>いつもご利用いただきありがとうございます<br>SSL暗号で通信が保護される新URL'https:"+ sslSite +"/'始まりへ移行をお願いします。<br>下記ボタン[OK]で新URLへジャンプします。<br>ブックマークの更新等もお願いいたします。<br><div style='color:red'>【重要】アカウントは引き継がれますが再ログインが必要となります</span>", function() {
+			scope.wait(100).done(function() {
+				location.href = "https://" + sslSite + "/" + location.href.replace(/^http:\/\/.*?\/(.*)$/,"$1");
+			});
+		});
+	});
+	$.cookie("tomomiRemindGuildSSL", "true", { expires: 2 });
 }

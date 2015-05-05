@@ -18,7 +18,7 @@
 		{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $page->body)}}
 		</div>
 		<div style="clear:both"></div>
-	@if(!$childPages->isEmpty())
+		@if(!$childPages->isEmpty())
 		<ul data-role="listview" data-inset="true">
 			@foreach ($childPages as $child)
 			<li>
@@ -81,7 +81,7 @@
 <div class="grad"
 	style="padding: 0.5em; margin-top: 3em; font-family: Verdana, Roboto, sans-serif;">
 	<div style="font-size: 8pt; padding-right: 1em">
-		android標準ブラウザで動きおかしい方は<a class="ui-link" href="market://details?id=com.android.chrome"><img src="/image/site/chrome.png" alt="">Chromeブラウザ</a>や<a class="ui-link" href="market://details?id=org.mozilla.firefox"><img src="/image/site/firefox.png" alt="">FireFoxブラウザ</a>でもお試しください。左記リンクからGooglePlayインストール画面に飛べます。<br>
+		android標準ブラウザで動きおかしい方は<a class="ui-link" href="market://details?id=com.android.chrome"><img src="/image/site/chrome.png" alt="">Chromeブラウザ</a>をお試しください。左記リンクからGooglePlayインストール画面に飛べます。<br>
 
 		<a style="padding: 0; margin: 0" href="http://cool-liberty.com/"
 			target="_blank"><img style="vertical-align: middle;"
@@ -89,11 +89,11 @@
 			height="31" alt="ホームページ作成素材 Cool Liberty" /></a>ホームページ作成素材 Cool
 		Liberty様のアイコンを使用しています <img style="vertical-align: middle;"
 			src="/image/site/chat/emotions/unknown.gif"><br /> hosted by <a
-			target="_blank" href="http://www.xserver.ne.jp/"><img
-			style="vertical-align: middle;"
-			src="http://www.xserver.ne.jp/common/img/header/logo.gif" width="80"
-			height="15" /></a><br />
+			target="_blank" href="http://www.xserver.ne.jp/">XSERVER(レンタルサーバー)</a><br />
 	</div>
+	@if (Request::secure())
+	<div><span style="background-color:yellow; color:black">SSL暗号で通信は保護されています</span></div>
+	@endif
 	<div style="text-align: right; padding-right: 1em">supported by tomomi (v.<span>{{$version}})</span></div>
 </div>
 @stop

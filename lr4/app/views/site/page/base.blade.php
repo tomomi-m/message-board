@@ -44,6 +44,7 @@ $(document).on('click', 'a.anchor', function(e){
 {{HTML::script('js/jquery.serializejson.min.js')}}
 {{HTML::script('js/jquery-dateFormat.min.js')}}
 {{HTML::script('js/jquery.lazyload.js')}}
+{{HTML::script('js/jquery.cookie.js')}}
 {{HTML::script('/js/tomomi.js')}}
 {{HTML::script('/js/site/page/page.js')}}
 {{HTML::script('/js/wysiwyg-editor.js')}}
@@ -52,7 +53,11 @@ $(document).on('click', 'a.anchor', function(e){
 </head>
 <body>
 @section('page')
-<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg" data-version="{{$version}}">
+<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg" data-version="{{$version}}"
+@if (!Request::secure())
+	data-ssl-site="{{Config::get('tomomi.ssl_site_host')}}"
+@endif
+>
 @show
 
 @section('header')
