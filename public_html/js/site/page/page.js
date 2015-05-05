@@ -1326,9 +1326,9 @@ function onPageScroll() {
 
 function guidToSSL(page) {
 	if (document.location.protocol.indexOf("https") == 0) return;
-	if ($.cookie("tomomiRemindGuildSSL")) return;
 	var sslSite = page.attr("data-ssl-site");
 	if (!sslSite) return;
+	if ($.cookie("tomomiRemindGuideSSL")) return;
 
 	var scope = tom.$scope(page);
 	scope.wait(100).done(function() {
@@ -1338,5 +1338,5 @@ function guidToSSL(page) {
 			});
 		});
 	});
-	$.cookie("tomomiRemindGuildSSL", "true", { expires: 2 });
+	$.cookie("tomomiRemindGuideSSL", "true", { expires: 2 });
 }
