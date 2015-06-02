@@ -576,7 +576,11 @@ function savePageEdit(self) {
 				pageEditDiv.attr("data-isNewPage", "");
 			}
 		}).fail(function(result, textStatus, xhr) {
-			pageEditSaveBtn.val("更新失敗(;; " + textStatus + ":" + result.statusText);
+			if (result.responseJSON && result.responseJSON.error.message) {
+				pageEditSaveBtn.val("更新失敗(;; " + result.responseJSON.error.message);
+			} else {
+				pageEditSaveBtn.val("更新失敗(;; " + textStatus + ":" + result.statusText);
+			}
 			pageEditSaveBtn.button("enable").button("refresh");
 		}).always(function() {
 			pageEditSaveBtn.removeAttr("user-data-submitting");

@@ -383,6 +383,31 @@ class SitePageController extends BaseController {
 			$page = Page::where ( 'site', $site->id )->where ( 'id', $pageIndex )->first ();
 			if (! $page)
 				App::abort ( 404, "Not exist #PageID" );
+			if (isset ( $data ['parent'] )) {
+				$parentId = $data ['parent'];
+				$parentIsOk = false;
+				for ( $i=0;$i<100; $i++) {
+					$parentPage = Page::where( 'site', $site->id )->where ( 'id', $parentId )->first ();
+					if (!$parentPage) {
+						break;
+					}
+					if ($parentPage->isDefault == 'Y') {
+						$parentIsOk = true;
+						break;
+					}
+					if ($parentPage->id == $pageIndex) {
+						App::abort ( 500, "子ページを親には指定できません!" );
+					}
+
+					$parentId = $parentPage->parent;
+					if (!$parentId) {
+						break;
+					}
+				}
+				if (!$parentIsOk) {
+					App::abort ( 404, "親ページ指定が不正です。無限循環します。" );
+				}
+			}
 			//backup prev page data
 			DB::insert('insert into pagebaks (id,site,title,background,thumbnail,body,body_for_search,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by) select id,site,title,background,thumbnail,body,body_for_search,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by from pages where site=? and id=?', array($site->id, $pageIndex));
 
@@ -507,13 +532,34 @@ class SitePageController extends BaseController {
 
 		$userName = MySession::getUserName ( $site->id );
 
-		$updateCount = DB::update ( "update pages set site=CONCAT(site,'-none'), updated_at=current_timestamp, updated_by=? where site=? and id= ?", array (
+		$updateCount = $this->internalDeletePage($site, $pageIndex, $userName);
+
+		return ($updateCount?"Deleted page:":"Page not found:") . $pageIndex. " count=". $updateCount;
+	}
+
+	function internalDeletePage(Site $site, $pageIndex, $userName) {
+		$updateCount = 0;
+
+		$childPages = Page::where ( 'site', $site->id )->where ( 'parent', $pageIndex )->get ();
+		foreach ( $childPages as $childPage) {
+			$updateCount +=  $this->internalDeletePage($site, $childPage->id, $userName);
+		}
+
+		DB::update ( "update messages set site=CONCAT(site,'-none'), updated_at=current_timestamp, updated_by=? where site=? and page= ?", array (
 				$userName,
 				$site->id,
 				$pageIndex
 		) );
-		return ($updateCount?"Deleted page:":"Page not found:") . $pageIndex;
+
+		$updateCount += DB::update ( "update pages set site=CONCAT(site,'-none'), updated_at=current_timestamp, updated_by=? where site=? and id= ?", array (
+				$userName,
+				$site->id,
+				$pageIndex
+		) );
+
+		return $updateCount;
 	}
+
 	function getLatestUpdated($site, $topNum) {
 		$recentUpdatedPagesAndMessages = DB::select ( //
 		"select type, p.id, p.site, p.title, p.thumbnail, case type when 1 then m.userName else p.updated_by end updated_by, case type when 1 then m.message else p.message end message, case type when 1 then m.updated_at else p.updated_at end updated_at " . //

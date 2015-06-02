@@ -1,4 +1,4 @@
 <?php
 class MyVersion {
-	const VER = '15050502';
+	const VER = '15060201';
 }
