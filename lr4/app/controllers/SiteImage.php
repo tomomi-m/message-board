@@ -165,6 +165,13 @@ class SiteImage {
 		if (! ($imgExt = array_search ( $mime_type, $IMAGE_MIME_TYPES, true ))) {
 			throw new Exception ( "Unvalid mime-type:" . $mime_type );
 		}
+		if ($imgExt == 'jpg') {
+			$pelData = new lsolesen\pel\PelDataWindow($imgBinary);
+			$pel = new lsolesen\pel\PelJpeg($pelData);
+			$pel->clearExif();
+			$imgBinary = $pel->getBytes();
+		}
+
 		return array (
 				'mimeType' => $mime_type,
 				'encoding' => $enc,

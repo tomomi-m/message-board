@@ -1,5 +1,5 @@
 <?php
-class Page extends \Eloquent {
+class PageBak extends \Eloquent {
 
 	// Add your validation rules here
 	public static $rules = [
