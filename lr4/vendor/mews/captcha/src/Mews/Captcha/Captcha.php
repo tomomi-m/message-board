@@ -80,6 +80,8 @@ class Captcha
                 break;
         }
 
+        \Log::info("captcha created. '" . $code . "'");
+
         if (!$formId) {
             $formId = hash('sha256', URL::previous());
         }

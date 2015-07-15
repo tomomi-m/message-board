@@ -13,6 +13,7 @@ class SiteController extends BaseController {
 		$userName = trim ( htmlspecialchars ( $data ['userName'], ENT_COMPAT, 'UTF-8' ) );
 		if (! $userName || Validator::make ( $data, $rules )->fails ()) {
 			$response = Response::make ( '{"r":"are you human?"}', 202 );
+			Log::info("ログインエラー。userName:'" . $userName . "', captcha:'" . $data['captcha'] . "'");
 		} else {
 			$isExistUser = MySession::login ( $site->id, $userName );
 			$response = Response::json ( array (
