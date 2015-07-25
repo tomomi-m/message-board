@@ -134,6 +134,9 @@ class SiteImage {
 		$filePathThAbs = $imageNewPath ['imageDirAbs'] . "/" . $fileNameTh;
 
 		$imageResource = imagecreatefromstring ( $imageParsed ['imgBinary'] );
+		if ($imageParsed ['angle']) {
+			$imageResource = imagerotate($imageResource, $imageParsed ['angle'], 0);
+		}
 		$this->resizeAndSaveImageResouceJpg ( $imageResource, $filePathAbs, $squareSize, $squareSize );
 		$this->resizeAndSaveImageResouceJpg ( $imageResource, $filePathThAbs, $squareSizeTh, $squareSizeTh, 60 );
 		imagedestroy ( $imageResource );
@@ -165,9 +168,33 @@ class SiteImage {
 		if (! ($imgExt = array_search ( $mime_type, $IMAGE_MIME_TYPES, true ))) {
 			throw new Exception ( "Unvalid mime-type:" . $mime_type );
 		}
+		$angle = 0;
 		if ($imgExt == 'jpg') {
 			$pelData = new lsolesen\pel\PelDataWindow($imgBinary);
 			$pel = new lsolesen\pel\PelJpeg($pelData);
+			$exif = $pel->getExif();
+			if ($exif) {
+				$tiff = $exif->getTiff();
+				$ifd0 = $tiff->getIfd();
+				if ($ifd0) {
+					$orientationEntry = $ifd0->getEntry(lsolesen\pel\PelTag::ORIENTATION);
+					if ($orientationEntry) {
+						$orientation = $orientationEntry->getValue();
+						$angle = 0;
+						switch($orientation) {
+							case 3: // 180 rotate left
+								$angle = 180;
+								break;
+							case 6: // 90 rotate right
+								$angle = -90;
+								break;
+							case 8:    // 90 rotate left
+								$angle = 90;
+								break;
+						}
+					}
+				}
+			}
 			$pel->clearExif();
 			$imgBinary = $pel->getBytes();
 		}
@@ -176,7 +203,8 @@ class SiteImage {
 				'mimeType' => $mime_type,
 				'encoding' => $enc,
 				'imgBinary' => $imgBinary,
-				'imgExt' => $imgExt
+				'imgExt' => $imgExt,
+				'angle' => $angle
 		);
 	}
 	function getNewImagePath($siteId) {
