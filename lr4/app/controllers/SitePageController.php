@@ -5,6 +5,7 @@ class SitePageController extends BaseController {
 	const PAGING_LENGTH = 50;
 	const LATEST_UPDATE_TOP_NUM = 5;
 	const IMAGE_EMOTIONS = "image/site/chat/emotions/";
+
 	public function getIndex(Site $site, $pageIndex = 'home') {
 		$data = Input::all ();
 		$aroundAtMode = false;
@@ -42,6 +43,7 @@ class SitePageController extends BaseController {
 				'aroundAtMode' => $aroundAtMode
 		) );
 	}
+
 	public function anyGetAllPages(Site $site, $pageIndex) {
 		$allPages = Page::where ( 'site', $site->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
 		$allPagesDef = array();
@@ -60,6 +62,7 @@ class SitePageController extends BaseController {
 		$ret ['allPages'] = $allPagesDef;
 		return Response::json ( $ret );
 	}
+
 	function getBreadCrumbList($page) {
 		$ret = array ();
 		while ( $page->parent ) {
@@ -71,6 +74,7 @@ class SitePageController extends BaseController {
 
 		return array_reverse ( $ret );
 	}
+
 	public function anyGetLatestXMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -88,6 +92,7 @@ class SitePageController extends BaseController {
 
 		return Response::json ( $ret );
 	}
+
 	public function anyGetMessagesAroundAt(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -114,6 +119,7 @@ class SitePageController extends BaseController {
 		}
 		return Response::json ( $ret );
 	}
+
 	public function postAddMessage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -154,6 +160,7 @@ class SitePageController extends BaseController {
 
 		return $this->anyGetLatestMessages ( $site, $pageIndex );
 	}
+
 	function parseMessageAttatchImages($siteId, $attachImagesHtml) {
 		$imageStr = "";
 		for($i = 0; $i < strlen ( $attachImagesHtml );) {
@@ -172,6 +179,7 @@ class SitePageController extends BaseController {
 		$imageStr = str_replace ( ' src="' . '/image/site/' . $siteId . '/', ' src="${siteImage}/', $imageStr );
 		return $imageStr;
 	}
+
 	function parseMessageAttatchFiles($siteId, $attachFilesName, $attachFilesContents) {
 		$filesAnchStr= "";
 		for($index = 0; $index < count( $attachFilesName ); $index++) {
@@ -205,6 +213,7 @@ class SitePageController extends BaseController {
 		$filesAnchStr = str_replace ( ' src="' . '/image/site/' . $siteId . '/', ' src="${siteImage}/', $filesAnchStr );
 		return $filesAnchStr;
 	}
+
 	public function anyGetLatestMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -222,6 +231,7 @@ class SitePageController extends BaseController {
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
 		return Response::json ( $ret );
 	}
+
 	public function anyGetOlderMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -245,6 +255,7 @@ class SitePageController extends BaseController {
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
 		return Response::json ( $ret );
 	}
+
 	public function anyGetNewerMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -268,6 +279,7 @@ class SitePageController extends BaseController {
 		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
 		return Response::json ( $ret );
 	}
+
 	function getFaces(Site $site) {
 		$folders = array ();
 		$userIcons = SiteUserIcon::where ( 'site', $site->id )->where ( 'userId', MySession::getUserId ( $site->id ) )->orderby ( 'order' )->get ();
@@ -284,6 +296,7 @@ class SitePageController extends BaseController {
 		}
 		return $folders;
 	}
+
 	function getEmotionCatalog(Site $site) {
 		$folders = array ();
 		$dir = public_path ( self::IMAGE_EMOTIONS );
@@ -314,6 +327,7 @@ class SitePageController extends BaseController {
 		}
 		return $folders;
 	}
+
 	public function anyGetEmotions(Site $site, $pageIndex = null) {
 		$data = Input::all ();
 		if (! array_key_exists ( 'folder', $data )) {
@@ -335,6 +349,7 @@ class SitePageController extends BaseController {
 		}
 		return Response::json ( $images );
 	}
+
 	public function anyEditPage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -364,6 +379,7 @@ class SitePageController extends BaseController {
 				'version' => MyVersion::VER
 		) );
 	}
+
 	public function anySavePageEdit(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -442,6 +458,7 @@ class SitePageController extends BaseController {
 				'thumbnail' => str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $page->site, $page->thumbnail )
 		) );
 	}
+
 	public static function makeBodySearchText(Page $page) {
 		$body = $page->body;
 		if (!$body) {
@@ -468,6 +485,7 @@ class SitePageController extends BaseController {
 
 		$page -> body_for_search = $body;
 	}
+
 	function parsePageBodyImage($page) {
 		// if (!$body) return $body;
 		$bodyStr = "";
@@ -489,6 +507,7 @@ class SitePageController extends BaseController {
 		$bodyStr = str_replace ( ' src="' . '/image/site/' . $page->site . '/', ' src="${siteImage}/', $bodyStr );
 		$page->body = $bodyStr;
 	}
+
 	function parsePageThumbnailImage($page) {
 		$st = stripos ( $page->thumbnail, 'data:image/', 0 );
 		if ($st === false) {
@@ -497,6 +516,7 @@ class SitePageController extends BaseController {
 		}
 		return str_replace ( '/image/site/' . $page->site . '/', '${siteImage}/', $page->thumbnail );
 	}
+
 	public function anyCreateChildPage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -522,6 +542,7 @@ class SitePageController extends BaseController {
 				'version' => MyVersion::VER
 		) );
 	}
+
 	public function anyDeletePage(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -560,26 +581,45 @@ class SitePageController extends BaseController {
 		return $updateCount;
 	}
 
-	function getLatestUpdated($site, $topNum) {
-		$recentUpdatedPagesAndMessages = DB::select ( //
-		"select type, p.id, p.site, p.title, p.thumbnail, case type when 1 then m.userName else p.updated_by end updated_by, case type when 1 then m.message else p.message end message, case type when 1 then m.updated_at else p.updated_at end updated_at " . //
-		"from ( " . //
-		"select 1 type, id, site, title, thumbnail, null updated_by, null message, lastMessage_at updated_at from pages where site=? " . //
-		"union all select 2 type, id, site, title, thumbnail, ifnull(updated_by,'') updated_by, '[ページ更新]' message, updated_at from pages where site=? " . //
-		"order by updated_at desc limit ? " . //
-		") p left outer join messages m on p.type=1 and m.id=(select max(mmax.id) from messages mmax where mmax.site=p.site and mmax.page=p.id group by page) " . //
-		"" , array (
+	function getLatestUpdated($site, $topNum, $includePage) {
+		if ($includePage) {
+			$sql = "select type, p.id, p.site, p.title, p.thumbnail, case type when 1 then m.userName else p.updated_by end updated_by, case type when 1 then m.message else p.message end message, case type when 1 then m.updated_at else p.updated_at end updated_at " . //
+					"from ( " . //
+					"select 1 type, id, site, title, thumbnail, null updated_by, null message, lastMessage_at updated_at from pages where site=? " . //
+					"union all select 2 type, id, site, title, thumbnail, ifnull(updated_by,'') updated_by, '[ページ更新]' message, updated_at from pages where site=? " . //
+					"order by updated_at desc limit ? " . //
+					") p left outer join messages m on p.type=1 and m.id=(select max(mmax.id) from messages mmax where mmax.site=p.site and mmax.page=p.id group by page) " . //
+					"";
+			$param = array (
 				$site->id,
 				$site->id,
 				$topNum
-		) );
+			);
+		} else {
+			$sql = "select type, p.id, p.site, p.title, p.thumbnail, case type when 1 then m.userName else p.updated_by end updated_by, case type when 1 then m.message else p.message end message, case type when 1 then m.updated_at else p.updated_at end updated_at " . //
+					"from ( " . //
+					"select 1 type, id, site, title, thumbnail, null updated_by, null message, lastMessage_at updated_at from pages where site=? " . //
+					"order by updated_at desc limit ? " . //
+					") p left outer join messages m on p.type=1 and m.id=(select max(mmax.id) from messages mmax where mmax.site=p.site and mmax.page=p.id group by page) " . //
+					"";
+			$param = array (
+				$site->id,
+				$topNum
+			);
+		}
+		$recentUpdatedPagesAndMessages = DB::select ( $sql , $param );
 		return $recentUpdatedPagesAndMessages;
 	}
+
 	function anyGetLatestPagesAndMessages(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
 		$data = Input::all ();
-		$latestUpdated = $this->getLatestUpdated ( $site, $data ["topN"] );
+		$includePage = false;
+		if (array_key_exists ( 'includePage', $data )) {
+			$includePage =  $data ["includePage"] == 'true';
+		}
+		$latestUpdated = $this->getLatestUpdated ( $site, $data ["topN"], $includePage );
 		foreach ( $latestUpdated as $message ) {
 			$message->thumbnail = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message->thumbnail );
 			$message->updated_at = MyDate::relativeDatetime ( $message->updated_at );
@@ -588,6 +628,7 @@ class SitePageController extends BaseController {
 				'latestUpdated' => $latestUpdated
 		) );
 	}
+
 	public function anyEditProfile(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -620,6 +661,7 @@ class SitePageController extends BaseController {
 				'version' => MyVersion::VER
 		) );
 	}
+
 	public function anySaveProfileEdit(Site $site, $pageIndex = null) {
 		if (! $pageIndex)
 			App::abort ( 404, "Invalid #Page" );
@@ -664,6 +706,7 @@ class SitePageController extends BaseController {
 				'imageSrcs' => $imageSrcs
 		) );
 	}
+
 	function parseProfileAttatchImages($siteId, $attachImagesHtml) {
 		$ret = array ();
 		for($i = 0; $i < strlen ( $attachImagesHtml );) {
@@ -685,6 +728,7 @@ class SitePageController extends BaseController {
 		}
 		return $ret;
 	}
+
 	function validateHuman(Site $site) {
 		$isHuman = MySession::getUserId ( $site->id );
 		if ($isHuman)

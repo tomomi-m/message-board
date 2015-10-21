@@ -859,6 +859,7 @@ function refreshLatestPagesAndMessages(topN) {
 	var page = tom.$AP();
 	var scope = tom.$scope(page);
 	var ulLatestPagesAndMessages = tom.$OC(page, "ulLatestPagesAndMessages");
+	var ckbLatestPagesAndMessagesIncludePage = tom.$OC(page, "ckbLatestPagesAndMessagesIncludePage");
 	var lis = $("li", ulLatestPagesAndMessages);
 	$("img", lis).attr("src", "/image/site/ajax-loader.gif");
 	$("a", lis).removeAttr("href").css("color", "lightgrey");
@@ -875,6 +876,7 @@ function refreshLatestPagesAndMessages(topN) {
 		}
 		scope.simpleAjax(document.URL + "/get-latest-pages-and-messages", {
 			topN : topN,
+			includePage : ckbLatestPagesAndMessagesIncludePage.prop('checked') ,
 		}).done(function(result, textStatus, xhr) {
 			tom.$OC(page, "refreshLatestPagesAndMessagesDiv").find("a").each(function() {
 				var a = $(this);

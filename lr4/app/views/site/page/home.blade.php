@@ -42,6 +42,9 @@
 			<ul name="ulLatestPagesAndMessages" class="ulLatestPagesAndMessages" data-role="listview" data-inset="true" data-split-icon="stack-exchange">
 			</ul>
 		</div>
+		<div style="padding: 1em 1em 0 0">
+			<label><input type="checkbox" name="ckbLatestPagesAndMessagesIncludePage" />検索にページ作成/更新を含める</label>
+		</div>
 	</div>
 	<div name="naviSiteMpDiv" class="topNavi siteMap" style="display:none;">
 		<div style="height: 4em; padding-top:2em">
