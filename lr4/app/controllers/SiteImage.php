@@ -1,5 +1,7 @@
 <?php
 class SiteImage {
+	const IMAGE_EMOTIONS = "image/site/chat/emotions/";
+
 	function createImageFile($siteId, $imageDataStr) {
 		$imageParsed = $this->parseImageDataStr ( $imageDataStr );
 		$imageNewPath = $this->getNewImagePath ( $siteId );
@@ -233,4 +235,54 @@ class SiteImage {
 		} );
 		return $id;
 	}
+
+	public function getFaces(Site $site) {
+		$folders = array ();
+		$userIcons = SiteUserIcon::where ( 'site', $site->id )->where ( 'userId', MySession::getUserId ( $site->id ) )->orderby ( 'order' )->get ();
+		$userIconImgs = array ();
+		if (count ( $userIcons )) {
+			foreach ( $userIcons as $userIcon ) {
+				$userIconImgs [] = mb_substr ( str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $userIcon->icon ), 1 );
+			}
+			$folders [] = array (
+					"name" => "個人設定",
+					"top" => $userIconImgs [0],
+					"all" => $userIconImgs
+			);
+		}
+		return $folders;
+	}
+
+
+	public function getEmotionCatalog(Site $site) {
+		$folders = array ();
+		$dir = public_path ( self::IMAGE_EMOTIONS );
+		$files = scandir ( $dir );
+		sort ( $files );
+		foreach ( $files as $file ) {
+			$folder = null;
+			if ($file == "." || $file == "..")
+				continue;
+			if (is_dir ( $dir . $file )) {
+				$images = scandir ( $dir . $file );
+				sort ( $images );
+				foreach ( $images as $image ) {
+					if (preg_match ( "/(gif|jpg|png)$/", $image )) {
+						if (! $folder) {
+							$folder = array (
+									"name" => $file,
+									"top" => self::IMAGE_EMOTIONS . $file . "/" . $image,
+									"all" => array ()
+							);
+						}
+						$folder ["all"] [] = self::IMAGE_EMOTIONS . $file . "/" . $image;
+					}
+				}
+			}
+			if ($folder)
+				$folders [] = $folder;
+		}
+		return $folders;
+	}
+
 }

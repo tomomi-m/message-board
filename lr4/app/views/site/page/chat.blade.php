@@ -4,18 +4,23 @@
 	<table width="100%" border="0">
 		<tr>
 			<td width="50px" name="emotion">
-@if(!empty($faces))
-				<a onclick="openFaces(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:4em;">
+				<a name="faceSel" onclick="openFaces(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:4em;
+@if(empty($faces))
+				display:none;
+@endif
+				">
 					<img
+@if(!empty($faces))
 						src="/{{$faces[0]['all'][0]}}"
+@endif
 						name="imgFace" />
 				</a>
-@endif
-				<a onclick="openEmotions(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:3em;">
+				<a name="emotionSel" onclick="openEmotions(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:3em;">
 					<img name="imgEmotion"
 @if(empty($faces))
 						src="/image/site/chat/emotions/unknown.gif"
 @endif
+						data-noFaces-default="/image/site/chat/emotions/unknown.gif"
 						/>
 				</a>
 			</td>
@@ -42,8 +47,9 @@
 </div>
 <div data-role="popup" name="facesPopupDiv" data-history="false" data-tolerance="20">
 	<div style="margin: 0; width: 230px;">
-	<div style="margin:0" onclick="setFace(event);"><img style="padding-left:8px; padding-right:8px" data-no-settings="Y" data-original="/{{SitePageController::IMAGE_EMOTIONS}}noSetting.gif" width="32" height="32" class="lazy" /></div>
+	<div style="margin:0" onclick="setFace(event);"><img style="padding-left:8px; padding-right:8px" data-no-settings="Y" data-original="/{{SiteImage::IMAGE_EMOTIONS}}noSetting.gif" width="32" height="32" class="lazy" /></div>
 	<hr style="margin:2px"/>
+	<div name="faces">
 	@if (!empty($faces))
 	@foreach ($faces[0]["all"] as $image)
 		<span
@@ -52,11 +58,12 @@
 	@endforeach
 @endif
 	</div>
+	</div>
 </div>
 <div data-role="popup" name="emotionsPopupDiv" data-history="false" data-tolerance="20" style="width:257px">
 	<div data-role="collapsible-set" data-collapsed-icon="arrow-r"
 		data-expanded-icon="arrow-d" style="margin: 0;">
-	<div style="margin:0" onclick="setEmotion(event);"><img style="padding-left:8px; padding-right:8px" data-no-settings="Y" data-original="/{{SitePageController::IMAGE_EMOTIONS}}noSetting.gif" width="32" height="32" class="lazy" /></div>
+	<div style="margin:0" onclick="setEmotion(event);"><img style="padding-left:8px; padding-right:8px" data-no-settings="Y" data-original="/{{SiteImage::IMAGE_EMOTIONS}}noSetting.gif" width="32" height="32" class="lazy" /></div>
 @foreach ($emotions as $key => $folder)
 		<div data-role="collapsible">
 			<h3 class="emotions">
