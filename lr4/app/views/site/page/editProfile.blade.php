@@ -29,8 +29,8 @@
 				value="{{$user->userName}}" /></td>
 		</tr>
 		<div data-role="popup" name="userNameRequirePopup" class="ui-content"
-			style="max-width: 350px; color: red; background-color: khaki; font-weight: bold"
-			data-history="false">お名前を入力してください</div>
+			style="max-width: 350px; color: red; background-color: khaki; font-weight: bold" data-history="false">
+			お名前を入力してください</div>
 	</table>
 
 	<h3>あなたのアイコン(メッセージ投稿時に使えます)</h3>
@@ -41,7 +41,7 @@
 				data-icon="picture-o" data-iconpos="notext">&nbsp;</button>
 			<input name="profileAttachImageInp" type="file" accept="image/*"
 				style="display: none; position: absolute; top: 0; left: 0; width: 5em;"
-				data-role="none" onchange="profileAppendImage(event, this)" multiple />
+				data-role="none" onchange="profileAppendImage(event, this)" multiple/>
 			<div name="profileAttachImagesDiv" class="shadowImages"
 				style="display: inline-block">
 				@foreach ($userIconImgs as $key => $userIconImg)

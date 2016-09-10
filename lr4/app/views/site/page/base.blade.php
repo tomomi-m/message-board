@@ -12,16 +12,7 @@
 {{HTML::style('/css/site/page/page.css')}}
 <style>
 .bg {
-	background: #ffffff
-		url({{ str_replace('${siteImage}', Request :: getBasePath() .
-		'/image/site/' .$site->id,$site->background)
-}
-}
-)
-repeat
-;
-
-
+	background: #ffffff url({{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $site->id, $site->background)}}) repeat;
 }
 </style>
 {{HTML::script('//code.jquery.com/jquery-1.11.1.min.js')}}
@@ -57,71 +48,68 @@ $(document).on('click', 'a.anchor', function(e){
 {{HTML::script('/js/tomomi.js')}}
 {{HTML::script('/js/site/page/page.js')}}
 {{HTML::script('/js/wysiwyg-editor.js')}}
-{{HTML::script('/js/swfobject.js')}} {{HTML::script('/siteg/' .
-$site->id . '/version-js')}}
+{{HTML::script('/js/swfobject.js')}}
+{{HTML::script('/siteg/' . $site->id . '/version-js')}}
 </head>
 <body>
-	@section('page')
-	<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg"
-		data-version="{{$version}}"
-		@if (!Request::secure())
+@section('page')
+<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg" data-version="{{$version}}"
+@if (!Request::secure())
 	data-ssl-site="{{Config::get('tomomi.ssl_site_host')}}"
-		@endif>
-		@show @section('header') @include('site.page.header') @show
+@endif
+>
+@show
 
-		@yield('content') @show @section('footer')
-		@include('site.page.footer') @show @include('site.page.loginout')
+@section('header')
+	@include('site.page.header')
+@show
 
-		<div name="scrollDiv"
-			style="display: table; position: fixed; bottom: 1.5em; right: 0px; z-index: 3;">
-			<div style="margin-bottom: 0.3em">
-				<div onclick="$('body, html').animate({ scrollTop: 0 }, 500);"
-					style="display: table-cell; background-color: rgba(200, 200, 200, 0.6); width: 3em; height: 2em; border-radius: 10px;">
-					<div
-						style="margin: 0.2em; border-left: 1.4em solid transparent; border-bottom: 0.7em solid; border-right: 1.4em solid transparent; z-index: 10;"></div>
-				</div>
-				<div style="display: table-cell; width: 0.5em"></div>
-				<div
-					onclick="$('body, html').animate({ scrollTop: $(document).height()-$(window).height()  }, 500);"
-					style="display: table-cell; background-color: rgba(200, 200, 200, 0.6); width: 3em; height: 2em; border-radius: 10px; vertical-align: bottom;">
-					<div
-						style="margin: 0.2em; border-left: 1.4em solid transparent; border-top: 0.7em solid; border-right: 1.4em solid transparent;"></div>
-				</div>
-			</div>
-		</div>
+@yield('content')
+@show
 
-		<div name="popupImageDiv" style="display: none" class="popupImageDiv"
-			data-overlay-theme="b" data-corners="false"
-			data-tolerance="10,50,10,20">
-			<a href="#" data-rel="back" data-role="button" data-icon="delete"
-				data-iconpos="notext" class="ui-btn-right">Close</a>
-			<div style="overflow: auto">
-				<img />
+@section('footer')
+	@include('site.page.footer')
+@show
+@include('site.page.loginout')
+
+	<div name="scrollDiv" style="display:table; position:fixed; bottom:1.5em; right:0px; z-index:3; ">
+		<div style="table-row; margin-bottom:0.3em">
+			<div onclick="$('body, html').animate({ scrollTop: 0 }, 500);" style="display:table-cell;background-color:rgba(200, 200, 200, 0.6); width:3em; height: 2em;border-radius:10px;">
+				<div style="margin: 0.2em; border-left: 1.4em solid transparent;border-bottom: 0.7em solid;border-right: 1.4em solid transparent; z-index:10; "></div>
 			</div>
-		</div>
-		<div name="popupAlertDiv" data-role="popup" data-overlay-theme="b"
-			class="ui-content ui-corner-all" data-history="false"
-			data-tolerance="50"></div>
-		<div name="popupMovieDiv" style="display: none" class="popupMovieDiv"
-			data-overlay-theme="b" data-corners="false"
-			data-tolerance="10,50,10,20">
-			<a href="#" data-rel="back" data-role="button" data-icon="delete"
-				data-iconpos="notext" class="ui-btn-right">Close</a>
-			<div style="overflow: auto">
-				<div name="movieDiv"></div>
+			<div style="display:table-cell;width:0.5em">
 			</div>
-		</div>
-		<div name="popupConfirmDiv" class="ui-content ui-corner-all"
-			data-role="popup" data-history="false" data-tolerance="50">
-			<div name="message" style="word-wrap: break-word; white-space: pre;"></div>
-			<div data-role="controlgroup" data-type="horizontal">
-				<button type="button" name="okButton" style="width: 7em">OK</button>
-				<button type="button" data-theme="b" data-mini="true"
-					onclick="tom.$OP(this,'popupConfirmDiv').popup('close')">キャンセル</button>
+			<div onclick="$('body, html').animate({ scrollTop: $(document).height()-$(window).height()  }, 500);" style="display:table-cell;background-color:rgba(200, 200, 200, 0.6); width:3em; height: 2em;border-radius:10px;vertical-align:bottom;">
+				<div style="margin: 0.2em; border-left: 1.4em solid transparent;border-top: 0.7em solid;border-right: 1.4em solid transparent;"></div>
 			</div>
 		</div>
 	</div>
 
-	<!--end of page-->
+	<div name="popupImageDiv" style="display:none" class="popupImageDiv"  data-overlay-theme="b" data-corners="false" data-tolerance="10,50,10,20">
+		<a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div style="overflow:auto">
+			<img />
+		</div>
+	</div>
+	<div name="popupAlertDiv" data-role="popup" data-overlay-theme="b" class="ui-content ui-corner-all" data-history="false" data-tolerance="50">
+	</div>
+	<div name="popupMovieDiv" style="display:none" class="popupMovieDiv"  data-overlay-theme="b" data-corners="false" data-tolerance="10,50,10,20">
+		<a href="#" data-rel="back" data-role="button" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div style="overflow:auto">
+			<div name="movieDiv"></div>
+		</div>
+	</div>
+	<div name="popupConfirmDiv" class="ui-content ui-corner-all"
+		data-role="popup" data-history="false" data-tolerance="50">
+		<div name="message" style="word-wrap: break-word; white-space: pre;"></div>
+		<div data-role="controlgroup" data-type="horizontal">
+			<button type="button" name="okButton" style="width:7em">OK</button>
+			<button type="button" data-theme="b" data-mini="true"
+				onclick="tom.$OP(this,'popupConfirmDiv').popup('close')">キャンセル</button>
+		</div>
+	</div>
+</div>
+
+<!--end of page-->
 </body>
 </html>
