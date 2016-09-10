@@ -214,7 +214,7 @@ function headerInit(page, isLoginInit) {
 					}
 				} else {
 					menuControlDiv.addClass("not-loged-in");
-					messageTxt.attr("placeholder", "内容 ※投稿するにはユーザー登録(無料)が必要です");
+					messageTxt.attr("placeholder", "内容 ※投稿するにはログインが必要です。画面右上からどうぞ");
 				}
 			}).fail(function(result, textStatus, xhr) {
 				scope.wait(5000).done(queryLogedIn);
@@ -507,7 +507,7 @@ function postMessage(self) {
 	scope.simpleAjax(document.URL + "/add-message", postData).done(function(result, textStatus, xhr) {
 		if (xhr.status == "202" && result.r == "are you human?") {
 			messageSubmitBtn.val("送").button("refresh");
-			confirmDialog("投稿するにはユーザー登録/ログインが必要です。<br>今すぐユーザー登録/ログインしますか？", function() {
+			confirmDialog("投稿するにはログインが必要です。<br>今すぐログイン(新規登録もこちら)しますか？", function() {
 				loginPopup(messageSubmitBtn[0]);
 			});
 		} else {

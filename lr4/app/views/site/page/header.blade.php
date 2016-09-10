@@ -14,7 +14,7 @@
 @if ($isEditable) <?php ?>
 				<div name="menuControl" class="query-loged-in">
 					<div class="need-query-loged-in" style="font-size: x-small">ログイン状況問い合わせ中...</div>
-					<a onclick="$(this).closest('[name=\'popupMenu\']').popup('close');loginPopup(this);" data-icon="user" class="ui-btn-right need-not-loged-in" data-role="button" style="position:relative">ログイン<br>(新規登録もこちら)</a>
+					<a onclick="$(this).closest('[name=\'popupMenu\']').popup('close');loginPopup(this);" data-icon="user" class="ui-btn-right need-not-loged-in" data-role="button" style="position:relative">ログイン<br>(新規登録<br>もこちら)</a>
 					<a onclick="openHeaderMenu(event)" data-icon="gear" class="ui-btn-right need-loged-in" data-role="button" style="position:relative">MENU</a>
 				</div>
 @endif

@@ -103,7 +103,7 @@ $(document).on('click', 'a.anchor', function(e){
 	
 	<div name="popupConfirmDiv" class="ui-content ui-corner-all"
 		data-role="popup" data-history="false" data-tolerance="50">
-		<div name="message" style="word-wrap: break-word; white-space: pre;"></div>
+		<div name="message" style=""></div>
 		<div data-role="controlgroup" data-type="horizontal">
 			<button type="button" name="okButton" style="width:7em">OK</button>
 			<button type="button" data-theme="b" data-mini="true"
