@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="content-language" content="ja">
+<title>{{{$page->title}}}</title>
 <link rel="icon"
 	href="{{{ Request::getBasePath() }}}/image/site/{{{ $site->id}}}/favicon.ico"
 	type="image/vnd.microsoft.icon" />
 <meta name="viewport" content="width=device-width,minimum-scale=1">
-{{HTML::style('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css')}}
+{{HTML::style('/css/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css')}}
 {{HTML::style('/css/commadelimited-jQuery-Mobile-Icon/jqm-icon-pack-fa.css')}}
 {{HTML::style('/css/site/page/page.css')}}
 <style>
@@ -15,7 +16,7 @@
 	background: #ffffff url({{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $site->id, $site->background)}}) repeat;
 }
 </style>
-{{HTML::script('//code.jquery.com/jquery-1.11.1.min.js')}}
+{{HTML::script('/js/jquery-1.12.4.min.js')}}
 <script>
 // ダイアログ表示中にリロードされた場合に。
 if( /^#(.*)&ui-state=dialog$/.test( location.hash ) ) {
@@ -39,12 +40,11 @@ $(document).on('click', 'a.anchor', function(e){
     $('body, html').animate({ scrollTop: y-50 }, 500);
 });
 </script>
-{{""/*HTML::script('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js')*/}}
-{{HTML::script('//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.js')}}
-{{HTML::script('js/jquery.serializejson.min.js')}}
-{{HTML::script('js/jquery-dateFormat.min.js')}}
-{{HTML::script('js/jquery.lazyload.js')}}
-{{HTML::script('js/jquery.cookie.js')}}
+{{HTML::script('/js/jquery.mobile-1.4.5.min.js')}}
+{{HTML::script('/js/jquery.serializejson.min.js')}}
+{{HTML::script('/js/jquery-dateFormat.min.js')}}
+{{HTML::script('/js/jquery.lazyload.js')}}
+{{HTML::script('/js/jquery.cookie.js')}}
 {{HTML::script('/js/tomomi.js')}}
 {{HTML::script('/js/site/page/page.js')}}
 {{HTML::script('/js/wysiwyg-editor.js')}}
@@ -53,7 +53,7 @@ $(document).on('click', 'a.anchor', function(e){
 </head>
 <body>
 @section('page')
-<div data-role="page" name="pageDiv" data-back-btn-text="戻る" class="bg" data-version="{{$version}}"
+<div data-role="page" name="pageDiv" data-title="{{{$page->title}}}" data-back-btn-text="戻る" class="bg" data-version="{{$version}}" 
 @if (!Request::secure())
 	data-ssl-site="{{Config::get('tomomi.ssl_site_host')}}"
 @endif
@@ -91,6 +91,7 @@ $(document).on('click', 'a.anchor', function(e){
 			<img />
 		</div>
 	</div>
+	
 	<div name="popupAlertDiv" data-role="popup" data-overlay-theme="b" class="ui-content ui-corner-all" data-history="false" data-tolerance="50">
 	</div>
 	<div name="popupMovieDiv" style="display:none" class="popupMovieDiv"  data-overlay-theme="b" data-corners="false" data-tolerance="10,50,10,20">
@@ -99,6 +100,7 @@ $(document).on('click', 'a.anchor', function(e){
 			<div name="movieDiv"></div>
 		</div>
 	</div>
+	
 	<div name="popupConfirmDiv" class="ui-content ui-corner-all"
 		data-role="popup" data-history="false" data-tolerance="50">
 		<div name="message" style="word-wrap: break-word; white-space: pre;"></div>

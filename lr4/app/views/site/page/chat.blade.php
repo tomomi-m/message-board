@@ -5,21 +5,14 @@
 		<tr>
 			<td width="50px" name="emotion">
 				<a name="faceSel" onclick="openFaces(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:4em;
-@if(empty($faces))
 				display:none;
-@endif
 				">
 					<img
-@if(!empty($faces))
-						src="/{{$faces[0]['all'][0]}}"
-@endif
 						name="imgFace" />
 				</a>
 				<a name="emotionSel" onclick="openEmotions(event)" data-role="button" data-mini="true" data-rel="popup" style="padding: 0; height:3em;">
 					<img name="imgEmotion"
-@if(empty($faces))
 						src="/image/site/chat/emotions/unknown.gif"
-@endif
 						data-noFaces-default="/image/site/chat/emotions/unknown.gif"
 						/>
 				</a>
@@ -50,13 +43,9 @@
 	<div style="margin:0" onclick="setFace(event);"><img style="padding-left:8px; padding-right:8px" data-no-settings="Y" data-original="/{{SiteImage::IMAGE_EMOTIONS}}noSetting.gif" width="32" height="32" class="lazy" /></div>
 	<hr style="margin:2px"/>
 	<div name="faces">
-	@if (!empty($faces))
-	@foreach ($faces[0]["all"] as $image)
 		<span
-			onclick="setFace(event);"><img data-original="/{{$image}}"
-			width="48" height="48" class="lazy" /></span>
-	@endforeach
-@endif
+			onclick="setFace(event);" style="display:none" data-template="yes"><img data-original=""
+			width="48" height="48" class="lazy"/></span>
 	</div>
 	</div>
 </div>
@@ -69,11 +58,11 @@
 			<h3 class="emotions">
 				{{{ $folder["name"] }}} <img data-original="/{{$folder["top"]}}" width="32" height="32" class="lazy" />...他
 			</h3>
-@foreach ($folder["all"] as $image)
+	@foreach ($folder["all"] as $image)
 			 <span
 				onclick="setEmotion(event);"><img data-original="/{{$image}}"
 				width="40" height="40" class="lazy" /></span>
-@endforeach
+	@endforeach
 		</div>
 @endforeach
 	</div>

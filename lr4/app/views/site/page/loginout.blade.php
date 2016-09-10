@@ -1,15 +1,16 @@
 <div name="popupLoginDiv" data-role="popup"
-	class="popupLoginDiv ui-content ui-corner-all" data-history="false" style="width:230px">
-	<span style="margin: 0; font-weight:bold; text-align:center">ユーザー認証</span><span
+	class="popupLoginDiv ui-content ui-corner-all" data-history="false" style="width:300px">
+	<span style="margin: 0; font-weight:bold; text-align:center">ログイン 兼 新規登録</span><span
 		style="margin: 0; font-size: 6pt; font-weight: normal">毎回入力ではないのでご理解・ご協力ください。</span>
 		<table><tr>
-			<td style="vertical-align:middle; width:3.5em">お名前</td><td><input style="" type="text" name="userNameInp" value="" data-mini="true" placeholder="お名前" data-theme="a" /></td>
+			<td style="vertical-align:middle; width:3.5em">ニックネーム</td><td><input style="" type="text" name="userNameInp" value="" data-mini="true" placeholder="お好きなお名前をどうぞ" data-theme="a" /></td>
 		</tr></table>
 	<hr/>
-	<div name="captchaImgDiv"></div>
+	ここに表示される画像の中の文字を読み取って入力してください。
+	<div name="captchaImgDiv" align="center"></div>
 	<table><tr>
-		<td style="vertical-align:middle; width:3.5em">上画像内文字</td><td><input style="ime-mode: disabled" type="text" name="captchaInp"
-		value="" data-mini="true" placeholder="↑画像内の文字" data-theme="a" /></td>
+		<td style="vertical-align:middle; width:5em">画像内文字</td><td><input style="ime-mode: disabled" type="text" name="captchaInp"
+		value="" data-mini="true" placeholder="画像内の文字を入力" data-theme="a" /></td>
 	</tr></table>
 	<button type="button" data-theme="b" data-mini="true"
 		onclick="login(this,event)">認証</button>
@@ -26,7 +27,7 @@
 <div name="popupWelcomeDiv" class="ui-content ui-corner-all"
 	data-role="popup" data-history="false">
 	<h2>
-		<span name="userNameSpn">?</span>さん。ようこそ！ <span name="siteNameSpn">?</span>
+		<span name="userNameSpn">?</span>さん。<br>ようこそ！ <span name="siteNameSpn">?</span>
 		サイトへ。
 	</h2>
 	<p>

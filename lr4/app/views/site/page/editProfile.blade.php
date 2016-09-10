@@ -23,14 +23,14 @@
 			<td>{{$user->id}} ※自動発番です</td>
 		</tr>
 		<tr>
-			<td>お名前</td>
+			<td>ニックネーム</td>
 			<td><input type="text" name="profileUserNameInp" data-mini="true"
-				data-role="fieldcontain" placeholder="Your Name"
+				data-role="fieldcontain" placeholder="お好きなお名前をどうぞ"
 				value="{{$user->userName}}" /></td>
 		</tr>
 		<div data-role="popup" name="userNameRequirePopup" class="ui-content"
 			style="max-width: 350px; color: red; background-color: khaki; font-weight: bold" data-history="false">
-			お名前を入力してください</div>
+			ニックネームを入力してください</div>
 	</table>
 
 	<h3>あなたのアイコン(メッセージ投稿時に使えます)</h3>

@@ -33,9 +33,7 @@ class SitePageController extends BaseController {
 				'site' => $site,
 				'page' => $page,
 				'childPages' => $childPages,
-				'faces' => $siteImage->getFaces ( $site ),
 				'emotions' => $siteImage->getEmotionCatalog ( $site ),
-				'userName' => $userName,
 				'isEditable' => ($pageIndex == "home") ? false : true,
 				'breadCrumb' => $breadCrumb,
 				'version' => MyVersion::VER,
@@ -560,6 +558,7 @@ class SitePageController extends BaseController {
 			$pageWhere = $pageWhere->where ( 'id', $pageIndex );
 		}
 		$page = $pageWhere->first ();
+		$page->title = "個人設定";
 		$user = MySession::getUser ( $site->id );
 		$userIcons = SiteUserIcon::where ( "userId", $user->id )->orderby ( "order" )->get ();
 		$userIconImgs = array ();
@@ -590,7 +589,7 @@ class SitePageController extends BaseController {
 		$userCheck = SiteUser::where ( 'site', $site->id )->where ( 'userName', $userName )->where ( 'id', '<>', $userId )->first ();
 		if ($userCheck) {
 			return Response::json ( array (
-					"errorMsg" => "そのユーザー名は誰かに使用されています" 
+					"errorMsg" => "そのニックネームは誰かに使用されています" 
 			), 202 );
 		}
 		

@@ -236,17 +236,20 @@ class SiteImage {
 	}
 	public function getFaces(Site $site) {
 		$folders = array ();
-		$userIcons = SiteUserIcon::where ( 'site', $site->id )->where ( 'userId', MySession::getUserId ( $site->id ) )->orderby ( 'order' )->get ();
-		$userIconImgs = array ();
-		if (count ( $userIcons )) {
-			foreach ( $userIcons as $userIcon ) {
-				$userIconImgs [] = mb_substr ( str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $userIcon->icon ), 1 );
+		$userId = MySession::getUserId ( $site->id );
+		if ($userId) {
+			$userIcons = SiteUserIcon::where ( 'site', $site->id )->where ( 'userId', $userId )->orderby ( 'order' )->get ();
+			$userIconImgs = array ();
+			if (count ( $userIcons )) {
+				foreach ( $userIcons as $userIcon ) {
+					$userIconImgs [] = mb_substr ( str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $userIcon->icon ), 1 );
+				}
+				$folders [] = array (
+						"name" => "個人設定",
+						"top" => $userIconImgs [0],
+						"all" => $userIconImgs 
+				);
 			}
-			$folders [] = array (
-					"name" => "個人設定",
-					"top" => $userIconImgs [0],
-					"all" => $userIconImgs 
-			);
 		}
 		return $folders;
 	}

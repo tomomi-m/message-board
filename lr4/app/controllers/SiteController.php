@@ -25,8 +25,13 @@ class SiteController extends BaseController {
 		return $response;
 	}
 	public function anyIsUserLogedIn(Site $site) {
+		$faces = (new SiteImage ())->getFaces ( $site );
+		if (! empty ( $faces )) {
+			$faces = $faces [0] ["all"];
+		}
 		return Response::json ( array (
-				"userName" => MySession::getUserName ( $site->id ) 
+				"userName" => MySession::getUserName ( $site->id ),
+				"faces" => $faces 
 		) );
 	}
 	public function anyLogout(Site $site) {

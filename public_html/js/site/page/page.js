@@ -168,23 +168,53 @@ function pageDestroy(event, ui) {
 	}
 }
 
-function headerInit(page) {
-	var popupMenuDiv = tom.$OC(page, "popupMenu");
-	if (popupMenuDiv.length > 0) {
-		popupMenuDiv.removeClass("loged-in not-loged-in query-loged-in");
-		popupMenuDiv.addClass("query-loged-in");
+function headerInit(page, isLoginInit) {
+	var menuControlDiv = tom.$OC(page, "menuControl");
+	if (menuControlDiv.length > 0) {
+		menuControlDiv.removeClass("loged-in not-loged-in query-loged-in");
+		menuControlDiv.addClass("query-loged-in");
 		logedInUserNameP = tom.$OC(page, "logedInUserNameP");
 		logedInUserNameP.hide();
+		var imgFace = tom.$OC(page, "imgFace");
+		imgFace.removeAttr("src");
+		var faceSel = tom.$OC(page, "faceSel");
+		faceSel.hide();
+		var facesDiv = tom.$OC(page, "faces");
+		$("span[data-template!='yes']", facesDiv).remove();
+		var messageTxt = tom.$OC(page, "messageTxt");
+		messageTxt.attr("placeholder", "内容");
+
 		var scope = tom.$scope(page);
 		var queryLogedIn = function() {
 			scope.simpleSyncAjax(getSitegUrl() + "/is-user-loged-in", {}).done(function(result, textStatus, xhr) {
-				popupMenuDiv.removeClass("query-loged-in");
+				menuControlDiv.removeClass("query-loged-in");
 				if (result.userName) {
-					popupMenuDiv.addClass("loged-in");
+					menuControlDiv.addClass("loged-in");
 					logedInUserNameP.text(result.userName);
 					logedInUserNameP.show();
+					if (result.faces && result.faces.length > 0) {
+						var faces = result.faces;
+						imgFace.attr("src", "/" + faces[0]);
+						faceSel.show();
+						var faceTemplate = $("span[data-template]", facesDiv);
+						for (var i = 0; i < faces.length; i++) {
+							var newFace = faceTemplate.clone(true);
+							var newFaceImg = $("img", newFace);
+							newFaceImg.removeAttr("src");
+							newFaceImg.attr("data-original", "/" + faces[i]);
+							newFace.removeAttr("data-template");
+							if (isLoginInit) {
+								newFaceImg.lazyload({
+									event : "doLazyLoad"
+								});
+							}
+							newFace.show();
+							facesDiv.append(newFace);
+						}
+					}
 				} else {
-					popupMenuDiv.addClass("not-loged-in");
+					menuControlDiv.addClass("not-loged-in");
+					messageTxt.attr("placeholder", "内容 ※投稿するにはユーザー登録(無料)が必要です");
 				}
 			}).fail(function(result, textStatus, xhr) {
 				scope.wait(5000).done(queryLogedIn);
@@ -476,9 +506,9 @@ function postMessage(self) {
 	tom.$OC(page, "messagePollProgressDiv").text("⇒");
 	scope.simpleAjax(document.URL + "/add-message", postData).done(function(result, textStatus, xhr) {
 		if (xhr.status == "202" && result.r == "are you human?") {
-			messageSubmitBtn.val("認証要").button("refresh");
-			loginPopup(messageSubmitBtn[0], function() {
-				postMessage(self);
+			messageSubmitBtn.val("送").button("refresh");
+			confirmDialog("投稿するにはユーザー登録/ログインが必要です。<br>今すぐユーザー登録/ログインしますか？", function() {
+				loginPopup(messageSubmitBtn[0]);
 			});
 		} else {
 			messageTxt.val("");
@@ -952,7 +982,7 @@ function loginPopup(self, loginCallback) {
 	var popupDiv = tom.$OC(page, "popupLoginDiv");
 	var captchaImgDiv = tom.$OC(popupDiv, "captchaImgDiv");
 	captchaImgDiv.empty();
-	captchaImgDiv.append($("<img style='padding:0; margin:0' width='220' height='50'>").attr("src", "/captcha?" + myuuid()));
+	captchaImgDiv.append($("<img style='padding:0; margin:0;' width='220' height='50'>").attr("src", "/captcha?" + myuuid()));
 	var inpCaptcha = $("input", popupDiv);
 	inpCaptcha.val("");
 	var btnCaptcha = $("button", popupDiv);
@@ -976,8 +1006,11 @@ function login(self, event) {
 	}).always(function(result, textStatus, xhr) {
 		if (xhr.status == "200") {
 			popupDiv.popup("close");
-			scope.wait(0).done(scope.vals.loginCallback);
-			headerInit(page);
+			if (scope.vals.loginCallback) {
+				scope.wait(0).done(scope.vals.loginCallback);
+			}
+			delete scope.vals.loginCallback;
+			headerInit(page, true);
 			if (!result.isExistUser) {
 				var welcomeDiv = tom.$OPC(page, "pageDiv", "popupWelcomeDiv")
 				tom.$OC(welcomeDiv, "siteNameSpn").text(result.siteName);
