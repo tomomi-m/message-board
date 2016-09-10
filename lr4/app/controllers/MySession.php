@@ -8,7 +8,7 @@ class MySession {
 	public static function getUser($siteId) {
 		if (! $siteId)
 			App::abort ( 404, "Unvalid siteId" );
-
+		
 		$userId = Session::get ( $siteId . '_userId' );
 		return $userId ? SiteUser::find ( $userId ) : null;
 	}
@@ -32,13 +32,13 @@ class MySession {
 	}
 	public static function getUserName($siteId) {
 		$userName = Session::get ( $siteId . '_userName' );
-
+		
 		// 移行
 		Session::forget ( $siteId . '_isHuman' );
 		$userId = Session::get ( $siteId . '_userId' );
 		if ($userId)
 			return $userName;
-
+		
 		if (! $userName) {
 			$userName = Cookie::get ( $siteId . '_userName' );
 			Cookie::queue ( Cookie::forget ( $siteId . '_userName' ) );
@@ -47,13 +47,13 @@ class MySession {
 			$userName = Cookie::get ( 'userName' );
 			Cookie::queue ( Cookie::forget ( 'userName' ) );
 		}
-
+		
 		if ($userName) {
 			$userName = trim ( $userName );
 		}
 		if (! $userName)
 			return null;
-
+		
 		return self::newUser ( $siteId, $userName )->userName;
 	}
 	public static function updateUserName($siteId, $userName) {
@@ -69,12 +69,11 @@ class MySession {
 		self::newUser ( $siteId, $userName );
 		return ($siteUser != null);
 	}
-
 	public static function validateLogin($siteId) {
 		$isHuman = MySession::getUserId ( $siteId );
 		if ($isHuman)
 			return null;
-
+		
 		$response = Response::make ( 'Unauthorized', 403 );
 		return $response;
 	}

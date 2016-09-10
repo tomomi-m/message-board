@@ -1,13 +1,12 @@
 <?php
 class SiteImage {
 	const IMAGE_EMOTIONS = "image/site/chat/emotions/";
-
 	function createImageFile($siteId, $imageDataStr) {
 		$imageParsed = $this->parseImageDataStr ( $imageDataStr );
 		$imageNewPath = $this->getNewImagePath ( $siteId );
 		$fileName = $imageNewPath ['imageFileNameNoExt'] . "." . $imageParsed ['imgExt'];
 		$filePathAbs = $imageNewPath ['imageDirAbs'] . "/" . $fileName;
-
+		
 		$fp = fopen ( $filePathAbs, 'w' );
 		fwrite ( $fp, $imageParsed ['imgBinary'] );
 		fclose ( $fp );
@@ -18,7 +17,7 @@ class SiteImage {
 		$imageNewPath = $this->getNewImagePath ( $siteId );
 		$fileName = $imageNewPath ['imageFileNameNoExt'] . "." . $imageParsed ['imgExt'];
 		$filePathAbs = $imageNewPath ['imageDirAbs'] . "/" . $fileName;
-
+		
 		$imageResource = imagecreatefromstring ( $imageParsed ['imgBinary'] );
 		$newWidth = $width = imagesx ( $imageResource );
 		$newHeight = $height = imagesy ( $imageResource );
@@ -51,7 +50,7 @@ class SiteImage {
 					break;
 			}
 			imagecopyresampled ( $square_new, $imageResource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height );
-
+			
 			switch ($imageParsed ['imgExt']) {
 				case 'jpg' :
 					imagejpeg ( $square_new, $filePathAbs );
@@ -79,7 +78,7 @@ class SiteImage {
 		$imageNewPath = $this->getNewImagePath ( $siteId );
 		$fileName = $imageNewPath ['imageFileNameNoExt'] . $fileNamePostfix . ".jpg";
 		$filePathAbs = $imageNewPath ['imageDirAbs'] . "/" . $fileName;
-
+		
 		$imageResource = imagecreatefromstring ( $imageParsed ['imgBinary'] );
 		$this->squareAndSaveImageResouceJpg ( $imageResource, $filePathAbs );
 		imagedestroy ( $imageResource );
@@ -88,7 +87,7 @@ class SiteImage {
 	function squareAndSaveImageResouceJpg($imageResource, $filePathAbs, $squareSize = 80) {
 		$width = imagesx ( $imageResource );
 		$height = imagesy ( $imageResource );
-
+		
 		if ($width >= $height) {
 			// 横長の画像の時
 			$side = $height;
@@ -110,7 +109,7 @@ class SiteImage {
 	function resizeAndSaveImageResouceJpg($imageResource, $filePathAbs, $maxWidth = 160, $maxHeight = 160, $quality = 85) {
 		$width = imagesx ( $imageResource );
 		$height = imagesy ( $imageResource );
-
+		
 		$newWidth = $width;
 		$newHeight = $height;
 		if ($newWidth > $maxWidth) {
@@ -123,7 +122,7 @@ class SiteImage {
 		}
 		$imageNew = imagecreatetruecolor ( $newWidth, $newHeight );
 		imagecopyresampled ( $imageNew, $imageResource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height );
-
+		
 		imagejpeg ( $imageNew, $filePathAbs, $quality );
 		imagedestroy ( $imageNew );
 	}
@@ -134,17 +133,17 @@ class SiteImage {
 		$filePathAbs = $imageNewPath ['imageDirAbs'] . "/" . $fileName;
 		$fileNameTh = $imageNewPath ['imageFileNameNoExt'] . "-th.jpg";
 		$filePathThAbs = $imageNewPath ['imageDirAbs'] . "/" . $fileNameTh;
-
+		
 		$imageResource = imagecreatefromstring ( $imageParsed ['imgBinary'] );
 		if ($imageParsed ['angle']) {
-			$imageResource = imagerotate($imageResource, $imageParsed ['angle'], 0);
+			$imageResource = imagerotate ( $imageResource, $imageParsed ['angle'], 0 );
 		}
 		$this->resizeAndSaveImageResouceJpg ( $imageResource, $filePathAbs, $squareSize, $squareSize );
 		$this->resizeAndSaveImageResouceJpg ( $imageResource, $filePathThAbs, $squareSizeTh, $squareSizeTh, 60 );
 		imagedestroy ( $imageResource );
 		return array (
 				'base' => $imageNewPath ['imageDir'] . "/" . $fileName,
-				'th' => $imageNewPath ['imageDir'] . "/" . $fileNameTh
+				'th' => $imageNewPath ['imageDir'] . "/" . $fileNameTh 
 		);
 	}
 	function parseImageDataStr($imageDataStr) {
@@ -161,70 +160,70 @@ class SiteImage {
 		$st = strlen ( $imageDataStr );
 		$imgBinaryStr = substr ( $imageDataStr, $i, $st - $i );
 		$imgBinary = base64_decode ( $imgBinaryStr );
-
+		
 		$IMAGE_MIME_TYPES = array (
 				'gif' => 'image/gif',
 				'jpg' => 'image/jpeg',
-				'png' => 'image/png'
+				'png' => 'image/png' 
 		);
 		if (! ($imgExt = array_search ( $mime_type, $IMAGE_MIME_TYPES, true ))) {
 			throw new Exception ( "Unvalid mime-type:" . $mime_type );
 		}
 		$angle = 0;
 		if ($imgExt == 'jpg') {
-			$pelData = new lsolesen\pel\PelDataWindow($imgBinary);
-			$pel = new lsolesen\pel\PelJpeg($pelData);
-			$exif = $pel->getExif();
+			$pelData = new lsolesen\pel\PelDataWindow ( $imgBinary );
+			$pel = new lsolesen\pel\PelJpeg ( $pelData );
+			$exif = $pel->getExif ();
 			if ($exif) {
-				$tiff = $exif->getTiff();
-				$ifd0 = $tiff->getIfd();
+				$tiff = $exif->getTiff ();
+				$ifd0 = $tiff->getIfd ();
 				if ($ifd0) {
-					$orientationEntry = $ifd0->getEntry(lsolesen\pel\PelTag::ORIENTATION);
+					$orientationEntry = $ifd0->getEntry ( lsolesen\pel\PelTag::ORIENTATION );
 					if ($orientationEntry) {
-						$orientation = $orientationEntry->getValue();
+						$orientation = $orientationEntry->getValue ();
 						$angle = 0;
-						switch($orientation) {
-							case 3: // 180 rotate left
+						switch ($orientation) {
+							case 3 : // 180 rotate left
 								$angle = 180;
 								break;
-							case 6: // 90 rotate right
-								$angle = -90;
+							case 6 : // 90 rotate right
+								$angle = - 90;
 								break;
-							case 8:    // 90 rotate left
+							case 8 : // 90 rotate left
 								$angle = 90;
 								break;
 						}
 					}
 				}
 			}
-			$pel->clearExif();
-			$imgBinary = $pel->getBytes();
+			$pel->clearExif ();
+			$imgBinary = $pel->getBytes ();
 		}
-
+		
 		return array (
 				'mimeType' => $mime_type,
 				'encoding' => $enc,
 				'imgBinary' => $imgBinary,
 				'imgExt' => $imgExt,
-				'angle' => $angle
+				'angle' => $angle 
 		);
 	}
 	function getNewImagePath($siteId) {
 		$imageId = $this->getNewImageId ()[0]->ID;
-		Log::info ( "getNewImagePath", [
+		Log::info ( "getNewImagePath", [ 
 				$siteId,
-				$imageId
+				$imageId 
 		] );
 		$imageDir = '${siteImage}/' . str_pad ( ($imageId - ($imageId % 1000)), 8, "0", STR_PAD_LEFT );
 		$imageFileNameNoExt = str_pad ( $imageId, 8, "0", STR_PAD_LEFT );
-
+		
 		$imageDirAbs = public_path ( str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $siteId, $imageDir ) );
 		if (! file_exists ( $imageDirAbs ))
 			mkdir ( $imageDirAbs, 0755, true );
 		return array (
 				'imageDir' => $imageDir,
 				'imageFileNameNoExt' => $imageFileNameNoExt,
-				'imageDirAbs' => $imageDirAbs
+				'imageDirAbs' => $imageDirAbs 
 		);
 	}
 	function getNewImageId() {
@@ -235,7 +234,6 @@ class SiteImage {
 		} );
 		return $id;
 	}
-
 	public function getFaces(Site $site) {
 		$folders = array ();
 		$userIcons = SiteUserIcon::where ( 'site', $site->id )->where ( 'userId', MySession::getUserId ( $site->id ) )->orderby ( 'order' )->get ();
@@ -247,13 +245,11 @@ class SiteImage {
 			$folders [] = array (
 					"name" => "個人設定",
 					"top" => $userIconImgs [0],
-					"all" => $userIconImgs
+					"all" => $userIconImgs 
 			);
 		}
 		return $folders;
 	}
-
-
 	public function getEmotionCatalog(Site $site) {
 		$folders = array ();
 		$dir = public_path ( self::IMAGE_EMOTIONS );
@@ -272,7 +268,7 @@ class SiteImage {
 							$folder = array (
 									"name" => $file,
 									"top" => self::IMAGE_EMOTIONS . $file . "/" . $image,
-									"all" => array ()
+									"all" => array () 
 							);
 						}
 						$folder ["all"] [] = self::IMAGE_EMOTIONS . $file . "/" . $image;
@@ -284,5 +280,4 @@ class SiteImage {
 		}
 		return $folders;
 	}
-
 }

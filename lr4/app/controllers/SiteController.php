@@ -5,8 +5,8 @@ class SiteController extends BaseController {
 		$rules = array (
 				'captcha' => array (
 						'required',
-						'captcha'
-				)
+						'captcha' 
+				) 
 		);
 		$data = Input::all ();
 		$userName = trim ( htmlspecialchars ( $data ['userName'], ENT_COMPAT, 'UTF-8' ) );
@@ -19,20 +19,20 @@ class SiteController extends BaseController {
 					"r" => "you are human",
 					"isExistUser" => $isExistUser,
 					"siteName" => $site->title,
-					"userName" => MySession::getUserName ( $site->id )
+					"userName" => MySession::getUserName ( $site->id ) 
 			) );
 		}
 		return $response;
 	}
 	public function anyIsUserLogedIn(Site $site) {
 		return Response::json ( array (
-				"userName" => MySession::getUserName ( $site->id )
+				"userName" => MySession::getUserName ( $site->id ) 
 		) );
 	}
 	public function anyLogout(Site $site) {
 		MySession::logout ( $site->id );
 		return Response::json ( array (
-				"userName" => ""
+				"userName" => "" 
 		) );
 	}
 	public function getIko1(Site $site) {
@@ -80,16 +80,16 @@ class SiteController extends BaseController {
 		}
 		$queryUnion = $queryForPage->union ( $queryForMessage );
 		$results = $queryUnion->orderBy ( 'updated_at', 'desc' )->take ( self::SEARCH_PAGING )->get ();
-
+		
 		$retPageIds = array ();
 		foreach ( $results as $result ) {
 			$result->imgFace = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $result->imgFace );
 			$result->imgEmotion = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $result->imgEmotion );
 			$retPageIds [$result->pageId] = '1';
 		}
-
+		
 		$ret ['searchResults'] = $results;
-
+		
 		$retPagesDef = array ();
 		if (count ( $retPageIds ) > 0) {
 			$pageIds = array_keys ( $retPageIds );
@@ -98,16 +98,16 @@ class SiteController extends BaseController {
 				$retPagesDef [] = array (
 						'id' => $page->id,
 						'thumb' => str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $page->site, $page->thumbnail ),
-						'title' => $page->title
+						'title' => $page->title 
 				);
 			}
 		}
 		$ret ['hitPageInfo'] = $retPagesDef;
-
+		
 		if (count ( $results ) < self::SEARCH_PAGING) {
 			$ret ['noMoreSearchResults'] = true;
 		}
-
+		
 		$ret ['keywords'] = $keywords;
 		return Response::json ( $ret );
 	}
@@ -122,7 +122,7 @@ class SiteController extends BaseController {
 			DB::update ( "update pages set body_for_search=? where site=? and id= ?", array (
 					$page->body_for_search,
 					$site->id,
-					$page->id
+					$page->id 
 			) );
 			$updateCount ++;
 		}

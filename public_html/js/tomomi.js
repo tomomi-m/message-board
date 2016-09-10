@@ -280,14 +280,13 @@ if (!String.prototype.repeat) {
 	}
 };
 
-
 function CreateSwfPlayer(title, src, divContents) {
 	$(divContents).empty();
-  var so = new SWFObject("/player-viral.swf", "movie", "500", "300", "8", "#336699");
-  so.addParam("allowfullscreen", "true");
-  so.addParam("allowscriptaccess", "always");
-  so.addVariable("file",src);
-  so.addVariable("title",title);
-  so.addVariable("autostart","false");
-  so.write(divContents);
+	var so = new SWFObject("/player-viral.swf", "movie", "500", "300", "8", "#336699");
+	so.addParam("allowfullscreen", "true");
+	so.addParam("allowscriptaccess", "always");
+	so.addVariable("file", src);
+	so.addVariable("title", title);
+	so.addVariable("autostart", "false");
+	so.write(divContents);
 }
