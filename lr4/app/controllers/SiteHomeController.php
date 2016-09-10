@@ -1,7 +1,6 @@
 <?php
-
 class SiteHomeController extends \BaseController {
-
+	
 	/*
 	|--------------------------------------------------------------------------
 	| デフォルトHomeコントローラー
@@ -14,9 +13,7 @@ class SiteHomeController extends \BaseController {
 	|	Route::get('/', 'HomeController@showWelcome');
 	|
 	*/
-
 	public function getIndex(Site $site) {
-		return 'hesse';//;
+		return 'hesse'; //;
 	}
-
 }

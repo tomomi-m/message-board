@@ -8,9 +8,9 @@ $(document).on("popupbeforeposition.tomomi", ".popupImageDiv", function() {
 });
 
 $(document).on("popupbeforeposition.tomomi", ".popupTiraDiv", function() {
-	var minWidth= $(window).width() - 100 + "px";
+	var minWidth = $(window).width() - 100 + "px";
 	var maxHeight = $(window).height() - 150 + "px";
-	tom.$OC($(this),"messagesDiv").css("max-height", maxHeight).css("min-width", minWidth);
+	tom.$OC($(this), "messagesDiv").css("max-height", maxHeight).css("min-width", minWidth);
 });
 
 $(document).on("popupafteropen.tomomi", ".popupLoginDiv", function() {
@@ -44,7 +44,7 @@ function pageSetup(event, ui) {
 		var isAroundMode = false;
 		var hitMessageId = null;
 		if (document.URL.match(/.+\?around=.+/)) {
-			url = document.URL.replace(/^(.+)\?.+$/, "$1")+"/get-messages-around-at";
+			url = document.URL.replace(/^(.+)\?.+$/, "$1") + "/get-messages-around-at";
 			var hitMessageId = document.URL.replace(/^.+\?around=(.+)$/, "$1");
 			param.around = hitMessageId;
 			isAroundMode = true;
@@ -59,8 +59,8 @@ function pageSetup(event, ui) {
 				scope.simpleAjax(url, param).done(function(result, textStatus, xhr) {
 					$("li", messagesUl).remove();
 					if (isAroundMode) {
-						chatAppendMessagesUl(page, result, "top", true, null ,true);
-						$hitLi = messagesUl.find("[user-data-posted-id='"+hitMessageId+"']");
+						chatAppendMessagesUl(page, result, "top", true, null, true);
+						$hitLi = messagesUl.find("[user-data-posted-id='" + hitMessageId + "']");
 						$hitLi.css("border", "2px solid red");
 					} else {
 						chatAppendMessagesUl(page, result, "top", true);
@@ -74,7 +74,8 @@ function pageSetup(event, ui) {
 			};
 			query();
 		} else {
-			if (!isAroundMode) chatPollMessage(page);
+			if (!isAroundMode)
+				chatPollMessage(page);
 		}
 	}
 
@@ -119,7 +120,10 @@ function pageSetup(event, ui) {
 
 	var dataVersion = page.attr("data-version");
 	if (dataVersion && dataVersion != myJsVersion) {
-		pageAlert({description: "サイトがバージョン<b>'v."+dataVersion+"'</b>にアップしました。<br><br>お手数ですが<b>ブラウザの再読み込み</b>をお願いします。", stack: ""});
+		pageAlert({
+			description : "サイトがバージョン<b>'v." + dataVersion + "'</b>にアップしました。<br><br>お手数ですが<b>ブラウザの再読み込み</b>をお願いします。",
+			stack : ""
+		});
 	}
 
 	var naviSearchDiv = tom.$OC(page, "naviSearchDiv");
@@ -199,96 +203,103 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 	if (!messagesUl) {
 		messagesUl = tom.$OC(page, "messagesUl");
 	}
-	$.each(result.messages, function(i, val) {
-		var lastMessageLi = $("[user-data-posted-id]", messagesUl);
-		if (direction == "top" && lastMessageLi.length > 0) {
-			if (parseInt(val.id) <= parseInt(lastMessageLi.attr("user-data-posted-id")))
-				return;
-		}
-		var li = $("<li style='margin-bottom:1px'/>")
-		var divT = $("<div class='table'/>");
-		var divR = $("<div class='row'/>");
-		var divC;
-
-		var isOwner = val.userName && (val.userName.toLowerCase() == authedUserName);
-		divC = $("<div class='" + (isOwner ? "chatTimeAndNameBoxModOwner" : "") + " chatTimeAndNameBoxBase' style='padding-right:0em;'/>");
-		var divCC = $("<div class='table'/>");
-		var divCCR = $("<div class='row'/>");
-		var divCCCtimeName = $("<div style='padding-right:0em; font-size: 70%; min-width: 5em; max-width: 5em; white-space: normal; word-break: break-all; '/>").append($.format.date(val.updated_at, "HH:mm")).append("<br/>").append(val.userName);
-		var faceImg;
-		if (val.imgFace)
-			faceImg = $("<img style='margin-right:1em; max-height: 3em; max-width: 3em; '/>").attr("src", val.imgFace);
-		var emotionImg;
-		if (val.imgEmotion) {
-			emotionImg = $("<img style='max-height: 2em; max-width: 2em; ' />").attr("src", val.imgEmotion);
-			if (faceImg) {
-				emotionImg.css({
-					position : "absolute",
-					bottom : 0,
-					right: 0,
-				});
-			}
-		}
-		var divCCCfaceEmotionImg = $("<div style='position:relative;padding-right:0em;'/>").append(faceImg).append(emotionImg);
-		if (isOwner) {
-			divCCR.append(divCCCfaceEmotionImg).append(divCCCtimeName);
-		} else {
-			divCCR.append(divCCCtimeName).append(divCCCfaceEmotionImg);
-		}
-		divCC.append(divCCR);
-		divC.append(divCC);
-
-		divR.append(divC);
-		divC = $("<div style='padding-right:0em;'/>");
-		var messageWithUrl = val.message.replace(/(http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?)/gi, "<a style='text-decoration: underline; background-color: lawngreen; word-break: break-all;' class='' onclick='openAnotherSite(this)'>$1</a>");
-		divC.append(messageWithUrl).trigger("create");
-		divR.append(divC);
-
-		divT.append(divR);
-		li.append(divT);
-		if (val.images) {
-			divC = $("<div class='shadowImages' />").html(val.images);
-			$("img", divC).on("click", chatImageClick);
-			li.append(divC);
-		}
-		if (val.files) {
-			divC = $("<div class='attachFiles' />").html(val.files);
-			$("a", divC).each(function() {
-				var anch = $(this);
-				var filename = anch.attr("data-filename");
-				var divBox = getAttachFileDivBox();
-				divBox.append(filename);
-				anch.append(divBox);
-				anch.on("click", function() {
-					confirmDialog("「"+filename+"」をダウンロードします。<br><br>当サイトではアップロードされたファイルのウィルスチェックは行っていませんのでご留意ください。", function() {
-						var downloadForm = $("#downloadForm");
-						if (!downloadForm.length) {
-							downloadForm = $('<form id="downloadForm" method="post" target="_blank">');
-							downloadForm.append('<input type="hidden" name="filename">');
-							downloadForm.append('<input type="hidden" name="href">');
-							$("body").append(downloadForm);
+	$
+			.each(
+					result.messages,
+					function(i, val) {
+						var lastMessageLi = $("[user-data-posted-id]", messagesUl);
+						if (direction == "top" && lastMessageLi.length > 0) {
+							if (parseInt(val.id) <= parseInt(lastMessageLi.attr("user-data-posted-id")))
+								return;
 						}
-						tom.$OC(downloadForm, "filename").val(filename);
-						tom.$OC(downloadForm, "href").val(anch.attr("data-href"));
-						downloadForm.attr("action",document.URL + "/download-attach-file");
-						downloadForm.submit();
+						var li = $("<li style='margin-bottom:1px'/>")
+						var divT = $("<div class='table'/>");
+						var divR = $("<div class='row'/>");
+						var divC;
+
+						var isOwner = val.userName && (val.userName.toLowerCase() == authedUserName);
+						divC = $("<div class='" + (isOwner ? "chatTimeAndNameBoxModOwner" : "") + " chatTimeAndNameBoxBase' style='padding-right:0em;'/>");
+						var divCC = $("<div class='table'/>");
+						var divCCR = $("<div class='row'/>");
+						var divCCCtimeName = $(
+								"<div style='padding-right:0em; font-size: 70%; min-width: 5em; max-width: 5em; white-space: normal; word-break: break-all; '/>")
+								.append($.format.date(val.updated_at, "HH:mm")).append("<br/>").append(val.userName);
+						var faceImg;
+						if (val.imgFace)
+							faceImg = $("<img style='margin-right:1em; max-height: 3em; max-width: 3em; '/>").attr("src", val.imgFace);
+						var emotionImg;
+						if (val.imgEmotion) {
+							emotionImg = $("<img style='max-height: 2em; max-width: 2em; ' />").attr("src", val.imgEmotion);
+							if (faceImg) {
+								emotionImg.css({
+									position : "absolute",
+									bottom : 0,
+									right : 0,
+								});
+							}
+						}
+						var divCCCfaceEmotionImg = $("<div style='position:relative;padding-right:0em;'/>").append(faceImg).append(emotionImg);
+						if (isOwner) {
+							divCCR.append(divCCCfaceEmotionImg).append(divCCCtimeName);
+						} else {
+							divCCR.append(divCCCtimeName).append(divCCCfaceEmotionImg);
+						}
+						divCC.append(divCCR);
+						divC.append(divCC);
+
+						divR.append(divC);
+						divC = $("<div style='padding-right:0em;'/>");
+						var messageWithUrl = val.message
+								.replace(/(http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?)/gi,
+										"<a style='text-decoration: underline; background-color: lawngreen; word-break: break-all;' class='' onclick='openAnotherSite(this)'>$1</a>");
+						divC.append(messageWithUrl).trigger("create");
+						divR.append(divC);
+
+						divT.append(divR);
+						li.append(divT);
+						if (val.images) {
+							divC = $("<div class='shadowImages' />").html(val.images);
+							$("img", divC).on("click", chatImageClick);
+							li.append(divC);
+						}
+						if (val.files) {
+							divC = $("<div class='attachFiles' />").html(val.files);
+							$("a", divC).each(function() {
+								var anch = $(this);
+								var filename = anch.attr("data-filename");
+								var divBox = getAttachFileDivBox();
+								divBox.append(filename);
+								anch.append(divBox);
+								anch.on("click", function() {
+									confirmDialog("「" + filename + "」をダウンロードします。<br><br>当サイトではアップロードされたファイルのウィルスチェックは行っていませんのでご留意ください。", function() {
+										var downloadForm = $("#downloadForm");
+										if (!downloadForm.length) {
+											downloadForm = $('<form id="downloadForm" method="post" target="_blank">');
+											downloadForm.append('<input type="hidden" name="filename">');
+											downloadForm.append('<input type="hidden" name="href">');
+											$("body").append(downloadForm);
+										}
+										tom.$OC(downloadForm, "filename").val(filename);
+										tom.$OC(downloadForm, "href").val(anch.attr("data-href"));
+										downloadForm.attr("action", document.URL + "/download-attach-file");
+										downloadForm.submit();
+									});
+								});
+							});
+							li.append(divC);
+						}
+						li.attr("user-data-posted-id", val.id);
+						li.attr("user-data-posted-date", val.updated_at.substr(0, 10));
+						if (direction == "bottom") {
+							messagesUl.append(li);
+						} else {
+							messagesUl.prepend(li);
+						}
 					});
-				});
-			});
-			li.append(divC);
-		}
-		li.attr("user-data-posted-id", val.id);
-		li.attr("user-data-posted-date", val.updated_at.substr(0, 10));
-		if (direction == "bottom") {
-			messagesUl.append(li);
-		} else {
-			messagesUl.prepend(li);
-		}
-	});
 	messagesUl.listview('refresh');
 	messagesUl.attr("user-data-once-refreshed", "true");
 
-	tom.$OC(messagesUl, "messagePollProgressDiv").text("at "+$.format.date(new Date(), "HH:mm:ss"));
+	tom.$OC(messagesUl, "messagePollProgressDiv").text("at " + $.format.date(new Date(), "HH:mm:ss"));
 
 	if (doControlGetOlderA) {
 		var messageGetOlderA = tom.$OC(page, "messageGetOlderA");
@@ -310,7 +321,7 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 
 function openAnotherSite(openButton) {
 	var url = $(openButton).text();
-	confirmDialog("以下の別サイトを開きます。<br>よろしいですか？<br>"+url, function() {
+	confirmDialog("以下の別サイトを開きます。<br>よろしいですか？<br>" + url, function() {
 		window.open(url);
 	});
 }
@@ -349,7 +360,6 @@ function getOlderMessage(self) {
 	query();
 }
 
-
 function getNewerMessage(self) {
 	self = $(self);
 	var page = tom.$AP();
@@ -381,7 +391,7 @@ function getNewerMessage(self) {
 			var lastMessageLiTopBefore = lastMessageLi.offset();
 			chatAppendMessagesUl(page, result, 'top', false, null, true);
 			var lastMessageLiTopAfter = lastMessageLi.offset();
-			jQuery.mobile.silentScroll( scrollTopBefore + lastMessageLiTopAfter.top - lastMessageLiTopBefore.top );
+			jQuery.mobile.silentScroll(scrollTopBefore + lastMessageLiTopAfter.top - lastMessageLiTopBefore.top);
 		}).fail(function() {
 			scope.wait(10000).done(query);
 		})
@@ -391,10 +401,12 @@ function getNewerMessage(self) {
 
 function chatPollMessage(page) {
 	var scope = tom.$scope(page);
-	if (scope == null) return; // page destroyed;
+	if (scope == null)
+		return; // page destroyed;
 	var messagesUl = tom.$OC(page, "messagesUl");
 	var waitTime = 10000;
-	//tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(waitTime / 2000));
+	// tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(waitTime /
+	// 2000));
 	scope.wait(waitTime, "chatPollMessage").done(function() {
 		var lastMessageLi = messagesUl.children(":eq(1)");
 		var postData = {};
@@ -410,7 +422,8 @@ function chatPollMessage(page) {
 			chatPollMessage(page);
 		})
 	}).progress(function(remainTime) {
-		//tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(remainTime / 2000));
+		// tom.$OC(messagesUl, "messagePollProgressDiv").text("z".repeat(remainTime
+		// / 2000));
 	});
 }
 
@@ -453,8 +466,8 @@ function postMessage(self) {
 		imgFace : imgFaceVal,
 		imgEmotion : imgEmotionVal,
 		attachImages : chatAttachImagesStr,
-		attachFilesName: chatAttachFileNames,
-		attachFilesContents: chatAttachFileContents,
+		attachFilesName : chatAttachFileNames,
+		attachFilesContents : chatAttachFileContents,
 		lastMessageId : lastMessageLi.attr("user-data-posted-id"),
 	}
 	messageSubmitBtn.val("送中..").button("refresh");
@@ -717,14 +730,14 @@ function profileAppendImage(event, self) {
 }
 
 function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv, maxCount) {
-	var maxSize = 10*1024*1024;
+	var maxSize = 10 * 1024 * 1024;
 	var fileInp = event.target;
 	var imagesDiv = imagesDiv ? imagesDiv : $(fileInp).next(":first");
 	var sizeOverFiles = [];
 	var sizeZeroFiles = [];
 	var invalidExtFiles = [];
 	var countOverFiles = [];
-	var startCount = tom.$OC(imagesDiv,"imageTd").length + tom.$OC(filesDiv,"fileTd").length;
+	var startCount = tom.$OC(imagesDiv, "imageTd").length + tom.$OC(filesDiv, "fileTd").length;
 	$
 			.each(
 					fileInp.files,
@@ -802,7 +815,7 @@ function appendImageToDiv(event, prefferedSize, callback, imagesDiv, filesDiv, m
 					});
 	if (countOverFiles.length > 0) {
 		pageAlert({
-			description : "添付個数が"+maxCount+"を超えたため添付できません",
+			description : "添付個数が" + maxCount + "を超えたため添付できません",
 			stack : countOverFiles.join(", <br>")
 		});
 	}
@@ -876,7 +889,7 @@ function refreshLatestPagesAndMessages(topN) {
 		}
 		scope.simpleAjax(document.URL + "/get-latest-pages-and-messages", {
 			topN : topN,
-			includePage : ckbLatestPagesAndMessagesIncludePage.prop('checked') ,
+			includePage : ckbLatestPagesAndMessagesIncludePage.prop('checked'),
 		}).done(function(result, textStatus, xhr) {
 			tom.$OC(page, "refreshLatestPagesAndMessagesDiv").find("a").each(function() {
 				var a = $(this);
@@ -892,7 +905,7 @@ function refreshLatestPagesAndMessages(topN) {
 				a.append("<br/>");
 				var divDesc = $("<div>");
 				divDesc.attr("style", "margin-left:1em; font-weight:normal; font-size: small; overflow:hidden; text-overflow:ellipsis;");
-				divDesc.append( val.updated_at + " " + val.updated_by + "<br/>" + val.message);
+				divDesc.append(val.updated_at + " " + val.updated_by + "<br/>" + val.message);
 				a.append(divDesc);
 				var a2;
 				if (val.type == 1) {
@@ -901,7 +914,8 @@ function refreshLatestPagesAndMessages(topN) {
 					});
 				}
 				li.append(a);
-				if (a2) li.append(a2);
+				if (a2)
+					li.append(a2);
 				li.attr("data-pageId", val.id);
 				li.attr("data-pageThumbnail", val.thumbnail);
 				li.attr("data-pageTitle", val.title);
@@ -1016,7 +1030,6 @@ function pageEditSelectParent(self) {
 	parentPageBtn.attr("data-parentId", li.attr("data-pageId"));
 }
 
-
 function popupMovieWindow(src) {
 	var page = tom.$AP();
 	var popupMovieDiv = tom.$APC("popupMovieDiv");
@@ -1031,79 +1044,86 @@ function popupMovieWindow(src) {
 function showSiteMap(showDivName, naviThis) {
 	topNaviShow(showDivName, naviThis);
 	var siteMapDiv = tom.$APC("naviSiteMpDiv");
-	if (siteMapDiv.hasClass("siteMapInited")) return;
+	if (siteMapDiv.hasClass("siteMapInited"))
+		return;
 	$(naviThis).addClass("ui-disabled");
 
 	var scope = tom.$scope(tom.$AP());
 	var query = function() {
-		scope.simpleAjax(document.URL + "/get-all-pages").done(function(result, textStatus, xhr) {
-			var allPagesDef = result.allPages;
-			var rootPage;
-			var pageMap = {};
-			for (var i=0; i< allPagesDef.length; i++) {
-				var curPage = allPagesDef[i];
-				pageMap[curPage.id] = curPage;
-				if (curPage.parent == 0) {
-					rootPage = curPage;
-				}
-			}
-			for (var i=0; i< allPagesDef.length; i++) {
-				var curPage = allPagesDef[i];
-				var parent = pageMap[curPage.parent];
-				if (parent) {
-					if (!parent.childs) parent.childs=[];
-					parent.childs.push(curPage);
-				}
-			}
-			allPagesDef = null;
+		scope
+				.simpleAjax(document.URL + "/get-all-pages")
+				.done(
+						function(result, textStatus, xhr) {
+							var allPagesDef = result.allPages;
+							var rootPage;
+							var pageMap = {};
+							for (var i = 0; i < allPagesDef.length; i++) {
+								var curPage = allPagesDef[i];
+								pageMap[curPage.id] = curPage;
+								if (curPage.parent == 0) {
+									rootPage = curPage;
+								}
+							}
+							for (var i = 0; i < allPagesDef.length; i++) {
+								var curPage = allPagesDef[i];
+								var parent = pageMap[curPage.parent];
+								if (parent) {
+									if (!parent.childs)
+										parent.childs = [];
+									parent.childs.push(curPage);
+								}
+							}
+							allPagesDef = null;
 
-			var printPage = function(page) {
-				var ret;
-				if (page.isDefault) {
-					ret = $("<div>").append("サイトマップ");
-					ret.append($("<button data-mini='true' data-inline='true' data-icon='plus'>").append("全展開").on("click", function(){
-						var childUl = $("ul", $("ul", siteMapDiv));
-						childUl.show();
-						var allExpandBtn = $(".expandBtn", siteMapDiv);
-						allExpandBtn.removeClass("ui-icon-plus");
-						allExpandBtn.addClass("ui-icon-minus");
-					}));
-					ret.append($("<button data-mini='true' data-inline='true' data-icon='minus'>").append("全省略").on("click", function(){
-						var childUl = $("ul", $("ul", siteMapDiv));
-						childUl.hide();
-						var allExpandBtn = $(".expandBtn", siteMapDiv);
-						allExpandBtn.removeClass("ui-icon-minus");
-						allExpandBtn.addClass("ui-icon-plus");
-					}));
-				} else {
-					var img = $("<img>").attr("src", page.thumb).attr("align", "left");
-					var anc = $("<a data-role='button' data-icon='carat-r' data-iconpos='right'>").attr("href", page.id);
-					anc.append(img).append(page.title).append("<br/>").append($("<span>").css("font-weight", "normal").append("最終更新:" + page.updatedAt + " by " + page.updatedBy + "<br/> 最終メッセージ:" + page.lastMessageAt));
-					var expandBottn = "";
-					if (page.childs) {
-						expandBottn = $("<button class='expandBtn' onclick='expandSiteMap(this)' style='position:absolute; top:0.3em; left:-2.3em; width:2.3em; height:3em; padding:0; margin:0;' data-icon='plus'>");
-					}
-					ret = $("<li style='position:relative;'>").append(expandBottn).append(anc);
-				}
-				if (page.childs) {
-					$.each(page.childs, function(i, page) {
-						var childUl = $("<ul class='ulLatestPagesAndMessages'>");
-						childUl.append(printPage(page));
-						ret.append(childUl);
-					});
-				}
-				return ret;
-			}
-			siteMapDiv.empty();
-			siteMapDiv.append(printPage(rootPage));
-			siteMapDiv.enhanceWithin();
-			siteMapDiv.addClass("siteMapInited");
-			$(naviThis).removeClass("ui-disabled");
-			$("ul", $("ul", siteMapDiv)).hide();
-		}).fail(function() {
-			siteMapDiv.children().append("fail retrying..");
-			scope.wait(10000).done(query);
-		})
+							var printPage = function(page) {
+								var ret;
+								if (page.isDefault) {
+									ret = $("<div>").append("サイトマップ");
+									ret.append($("<button data-mini='true' data-inline='true' data-icon='plus'>").append("全展開").on("click", function() {
+										var childUl = $("ul", $("ul", siteMapDiv));
+										childUl.show();
+										var allExpandBtn = $(".expandBtn", siteMapDiv);
+										allExpandBtn.removeClass("ui-icon-plus");
+										allExpandBtn.addClass("ui-icon-minus");
+									}));
+									ret.append($("<button data-mini='true' data-inline='true' data-icon='minus'>").append("全省略").on("click", function() {
+										var childUl = $("ul", $("ul", siteMapDiv));
+										childUl.hide();
+										var allExpandBtn = $(".expandBtn", siteMapDiv);
+										allExpandBtn.removeClass("ui-icon-minus");
+										allExpandBtn.addClass("ui-icon-plus");
+									}));
+								} else {
+									var img = $("<img>").attr("src", page.thumb).attr("align", "left");
+									var anc = $("<a data-role='button' data-icon='carat-r' data-iconpos='right'>").attr("href", page.id);
+									anc.append(img).append(page.title).append("<br/>").append(
+											$("<span>").css("font-weight", "normal").append(
+													"最終更新:" + page.updatedAt + " by " + page.updatedBy + "<br/> 最終メッセージ:" + page.lastMessageAt));
+									var expandBottn = "";
+									if (page.childs) {
+										expandBottn = $("<button class='expandBtn' onclick='expandSiteMap(this)' style='position:absolute; top:0.3em; left:-2.3em; width:2.3em; height:3em; padding:0; margin:0;' data-icon='plus'>");
+									}
+									ret = $("<li style='position:relative;'>").append(expandBottn).append(anc);
+								}
+								if (page.childs) {
+									$.each(page.childs, function(i, page) {
+										var childUl = $("<ul class='ulLatestPagesAndMessages'>");
+										childUl.append(printPage(page));
+										ret.append(childUl);
+									});
+								}
+								return ret;
+							}
+							siteMapDiv.empty();
+							siteMapDiv.append(printPage(rootPage));
+							siteMapDiv.enhanceWithin();
+							siteMapDiv.addClass("siteMapInited");
+							$(naviThis).removeClass("ui-disabled");
+							$("ul", $("ul", siteMapDiv)).hide();
+						}).fail(function() {
+					siteMapDiv.children().append("fail retrying..");
+					scope.wait(10000).done(query);
+				})
 	};
 	query();
 }
@@ -1135,12 +1155,12 @@ function tiraMessage(aThis) {
 	var pageId = li.attr("data-pageId");
 	var pageThumbnail = li.attr("data-pageThumbnail");
 	var pageTitle = li.attr("data-pageTitle");
-	var popupTiraDiv=tom.$APC("popupTiraDiv");
-	var tiraMessagesUl=tom.$OC(popupTiraDiv, "tiraMessagesUl");
-	var tileTitlebar=tom.$OC(popupTiraDiv, "titlebar");
+	var popupTiraDiv = tom.$APC("popupTiraDiv");
+	var tiraMessagesUl = tom.$OC(popupTiraDiv, "tiraMessagesUl");
+	var tileTitlebar = tom.$OC(popupTiraDiv, "titlebar");
 	tileTitlebar.empty();
-	tileTitlebar.append('<img style="width:3em" src="'+pageThumbnail+'" align="left"/>').append(pageTitle);
-	$("li",tiraMessagesUl).remove();
+	tileTitlebar.append('<img style="width:3em" src="' + pageThumbnail + '" align="left"/>').append(pageTitle);
+	$("li", tiraMessagesUl).remove();
 	tiraMessagesUl.append("<li>loading...</li>");
 	popupTiraDiv.popup();
 	popupTiraDiv.show();
@@ -1154,14 +1174,14 @@ function tiraMessage(aThis) {
 				return out;
 			}
 		});
-		tiraMessagesUl.attr("data-listview-inited","true");
+		tiraMessagesUl.attr("data-listview-inited", "true");
 	}
 
 	tom.$OC(tiraMessagesUl, "messagePollProgressDiv").text("⇔");
 	var page = tom.$AP();
 	var scope = tom.$scope(page);
 	var query = function() {
-		scope.simpleAjax(document.URL.replace(/^(.*\/).*$/, "$1")+pageId+"/get-latest-xmessages", {}).done(function(result, textStatus, xhr) {
+		scope.simpleAjax(document.URL.replace(/^(.*\/).*$/, "$1") + pageId + "/get-latest-xmessages", {}).done(function(result, textStatus, xhr) {
 			$("li", tiraMessagesUl).remove();
 			chatAppendMessagesUl(page, result, "top", false, tiraMessagesUl);
 			popupTiraDiv.popup("reposition", {
@@ -1194,122 +1214,126 @@ function siteSearch(siteSearchBtn) {
 	var page = tom.$AP();
 	var scope = tom.$scope(page);
 	siteSearchBtn = $(siteSearchBtn);
-	var siteSearchKeywordTxt=tom.$OC(page, "siteSearchKeywordTxt");
+	var siteSearchKeywordTxt = tom.$OC(page, "siteSearchKeywordTxt");
 	var searchKeyword = siteSearchKeywordTxt.val().replace(/^[\s　]+|[\s　]+$/g, "");
 	siteSearchKeywordTxt.val(searchKeyword);
 
 	if (searchKeyword.length == 0) {
-		pageAlert({description: "空白文字だけの検索条件は指定できません", stack: ""});
+		pageAlert({
+			description : "空白文字だけの検索条件は指定できません",
+			stack : ""
+		});
 		return false;
 	}
 
-	if(siteSearchBtn.attr("user-data-submitting")) {
+	if (siteSearchBtn.attr("user-data-submitting")) {
 		siteSearchBtn.button("disable").button("refresh");
 		return false;
 	}
 	siteSearchBtn.attr("user-data-submitting", true);
 
 	var postData = {
-			searchKeyword : searchKeyword,
-		}
+		searchKeyword : searchKeyword,
+	}
 	siteSearchBtn.val("検中..").button("refresh");
 	var searchResultDiv = tom.$OC(page, "searchResultDiv");
 	searchResultDiv.empty().append($('<image src="/image/site/ajax-loader.gif">'));
 
-		scope.simpleAjax(getSitegUrl() + "/site-search", postData).done(function(result, textStatus, xhr) {
-			siteSearchBtn.val("検索").button("refresh");
-			searchResultDiv.empty();
-			if (result.searchResults.length ==0) {
-				searchResultDiv.append("一致する情報は見つかりませんでした");
-				return;
-			}
-			var keywords = result.keywords;
-			var hitPageInfo = {};
-			$.each(result.hitPageInfo, function(i, val) {
-				hitPageInfo[val.id] = val;
-			});
-
-			$.each(result.searchResults, function(i, val) {
-				var divHit = $('<div class="searchResult">');
-				var hitPage = hitPageInfo[val.pageId];
-				var anch = $('<a>').attr("href", hitPage.id+((val.type==1)?"":"?around="+val.messageId));
-				var pageTitle = hitPage.title;
-				if (val.type == 1) {
-					pageTitle = highlightSearchKeyword(pageTitle, keywords);
-				}
-				var title = $('<div class="searchResultTitle">').append("["+(i+1)+"] ").append(pageTitle);
-				anch.append(title);
-				var subTitle = $('<div class="searchResultSubtitle">').append(val.updated_at+" "+val.userName);
-				anch.append(subTitle);
-				divHit.append(anch);
-				var message = val.message;
-				if(!message) message="";
-				var foundPos = Number.MAX_VALUE;
-				$.each(keywords, function(i, keyword) {
-					foundPos = Math.min(foundPos, message.indexOf(keyword));
-				});
-				if (foundPos == Number.MAX_VALUE) {
-					foundPos = 0;
-				}
-				var MESSAGE_DISP_MAX_LEN = 100;
-				var cutFrom = Math.max(0, foundPos - MESSAGE_DISP_MAX_LEN/2);
-				message = message.substring(cutFrom);
-				if (message.length > MESSAGE_DISP_MAX_LEN) {
-					message = message.substr(0, MESSAGE_DISP_MAX_LEN)+"......";
-				}
-				if (cutFrom > 0) {
-					message = "......" + message;
-				}
-				message = highlightSearchKeyword(message, keywords);
-				var hitTable = $('<table>');
-				var hitTr =$('<tr>');
-				var hitTd1 = $('<td>');
-				switch (val.type) {
-				case "1":
-					hitTd1.append("ページ<br>");
-					hitTd1.append($('<img style="max-height: 4em; max-width: 4em; ">').attr('src', hitPageInfo[val.pageId].thumb));
-					break;
-				case "2":
-					hitTd1.append("ﾒｯｾｰｼﾞ<br>");
-					var faceImg = null;
-					if (val.imgFace)
-						faceImg = $("<img style='margin-right:1em; max-height: 3em; max-width: 3em; '/>").attr("src", val.imgFace);
-					var emotionImg = null;
-					if (val.imgEmotion) {
-						emotionImg = $("<img style='max-height: 2em; max-width: 2em; ' />").attr("src", val.imgEmotion);
-						if (faceImg) {
-							emotionImg.css({
-								position : "absolute",
-								bottom : 0,
-								right: 0,
-							});
-						}
-					}
-					var divFace = $("<div style='min-width: 4em; position:relative;padding-right:0em;'/>").append(faceImg).append(emotionImg);
-					hitTd1.append(divFace);
-					break;
-				}
-				hitTr.append(hitTd1);
-				var hitTd2 = $('<td>');
-				hitTd2.append(message);
-				hitTr.append(hitTd2);
-				hitTable.append(hitTr);
-				var hitContents = $('<div class="searchResultContents">').append(hitTable);
-				divHit.append(hitContents);
-				searchResultDiv.append(divHit);
-			});
-		}).fail(function(result, textStatus, xhr) {
-			siteSearchBtn.val("err:" + textStatus).button("refresh");
-			searchResultDiv.empty();
-		}).always(function() {
-			siteSearchBtn.removeAttr("user-data-submitting");
-			siteSearchBtn.button("enable").button("refresh");
+	scope.simpleAjax(getSitegUrl() + "/site-search", postData).done(function(result, textStatus, xhr) {
+		siteSearchBtn.val("検索").button("refresh");
+		searchResultDiv.empty();
+		if (result.searchResults.length == 0) {
+			searchResultDiv.append("一致する情報は見つかりませんでした");
+			return;
+		}
+		var keywords = result.keywords;
+		var hitPageInfo = {};
+		$.each(result.hitPageInfo, function(i, val) {
+			hitPageInfo[val.id] = val;
 		});
+
+		$.each(result.searchResults, function(i, val) {
+			var divHit = $('<div class="searchResult">');
+			var hitPage = hitPageInfo[val.pageId];
+			var anch = $('<a>').attr("href", hitPage.id + ((val.type == 1) ? "" : "?around=" + val.messageId));
+			var pageTitle = hitPage.title;
+			if (val.type == 1) {
+				pageTitle = highlightSearchKeyword(pageTitle, keywords);
+			}
+			var title = $('<div class="searchResultTitle">').append("[" + (i + 1) + "] ").append(pageTitle);
+			anch.append(title);
+			var subTitle = $('<div class="searchResultSubtitle">').append(val.updated_at + " " + val.userName);
+			anch.append(subTitle);
+			divHit.append(anch);
+			var message = val.message;
+			if (!message)
+				message = "";
+			var foundPos = Number.MAX_VALUE;
+			$.each(keywords, function(i, keyword) {
+				foundPos = Math.min(foundPos, message.indexOf(keyword));
+			});
+			if (foundPos == Number.MAX_VALUE) {
+				foundPos = 0;
+			}
+			var MESSAGE_DISP_MAX_LEN = 100;
+			var cutFrom = Math.max(0, foundPos - MESSAGE_DISP_MAX_LEN / 2);
+			message = message.substring(cutFrom);
+			if (message.length > MESSAGE_DISP_MAX_LEN) {
+				message = message.substr(0, MESSAGE_DISP_MAX_LEN) + "......";
+			}
+			if (cutFrom > 0) {
+				message = "......" + message;
+			}
+			message = highlightSearchKeyword(message, keywords);
+			var hitTable = $('<table>');
+			var hitTr = $('<tr>');
+			var hitTd1 = $('<td>');
+			switch (val.type) {
+			case "1":
+				hitTd1.append("ページ<br>");
+				hitTd1.append($('<img style="max-height: 4em; max-width: 4em; ">').attr('src', hitPageInfo[val.pageId].thumb));
+				break;
+			case "2":
+				hitTd1.append("ﾒｯｾｰｼﾞ<br>");
+				var faceImg = null;
+				if (val.imgFace)
+					faceImg = $("<img style='margin-right:1em; max-height: 3em; max-width: 3em; '/>").attr("src", val.imgFace);
+				var emotionImg = null;
+				if (val.imgEmotion) {
+					emotionImg = $("<img style='max-height: 2em; max-width: 2em; ' />").attr("src", val.imgEmotion);
+					if (faceImg) {
+						emotionImg.css({
+							position : "absolute",
+							bottom : 0,
+							right : 0,
+						});
+					}
+				}
+				var divFace = $("<div style='min-width: 4em; position:relative;padding-right:0em;'/>").append(faceImg).append(emotionImg);
+				hitTd1.append(divFace);
+				break;
+			}
+			hitTr.append(hitTd1);
+			var hitTd2 = $('<td>');
+			hitTd2.append(message);
+			hitTr.append(hitTd2);
+			hitTable.append(hitTr);
+			var hitContents = $('<div class="searchResultContents">').append(hitTable);
+			divHit.append(hitContents);
+			searchResultDiv.append(divHit);
+		});
+	}).fail(function(result, textStatus, xhr) {
+		siteSearchBtn.val("err:" + textStatus).button("refresh");
+		searchResultDiv.empty();
+	}).always(function() {
+		siteSearchBtn.removeAttr("user-data-submitting");
+		siteSearchBtn.button("enable").button("refresh");
+	});
 }
 
 function highlightSearchKeyword(str, keywords) {
 	$.each(keywords, function(i, keyword) {
-		str = str.replace(new RegExp(keyword.replace(/./,"\\$&"),"ig"), '<span class="searchKeyHighlight">$&</span>').replace(/(<br \/>\r\n)*$/, "");
+		str = str.replace(new RegExp(keyword.replace(/./, "\\$&"), "ig"), '<span class="searchKeyHighlight">$&</span>').replace(/(<br \/>\r\n)*$/, "");
 	});
 	return str;
 }
@@ -1322,27 +1346,35 @@ function onPageScroll() {
 	var page = tom.$AP();
 	var scope = tom.$scope(page);
 	var nowScrollTop = $(window).scrollTop();
-	var scrollDelta = Math.abs(nowScrollTop-scope.val.scrollDivControlLastScrollTop);
+	var scrollDelta = Math.abs(nowScrollTop - scope.val.scrollDivControlLastScrollTop);
 	if (scrollDelta > 20) {
-			scrollDiv.show();
+		scrollDiv.show();
 	}
 	scope.val.scrollDivControlLastScrollTime = new Date();
 	scope.val.scrollDivControlLastScrollTop = nowScrollTop;
 }
 
 function guidToSSL(page) {
-	if (document.location.protocol.indexOf("https") == 0) return;
+	if (document.location.protocol.indexOf("https") == 0)
+		return;
 	var sslSite = page.attr("data-ssl-site");
-	if (!sslSite) return;
-	if ($.cookie("tomomiRemindGuideSSL")) return;
+	if (!sslSite)
+		return;
+	if ($.cookie("tomomiRemindGuideSSL"))
+		return;
 
 	var scope = tom.$scope(page);
-	scope.wait(100).done(function() {
-		confirmDialog("<h3 style='text-align:center'>セキュアURLへ変更のお願い--Tomomi</h3>いつもご利用いただきありがとうございます<br>SSL暗号で通信が保護される新URL'https:"+ sslSite +"/'始まりへ移行をお願いします。<br>下記ボタン[OK]で新URLへジャンプします。<br>ブックマークの更新等もお願いいたします。<br><div style='color:red'>【重要】アカウントは引き継がれますが再ログインが必要となります</span>", function() {
-			scope.wait(100).done(function() {
-				location.href = "https://" + sslSite + "/" + location.href.replace(/^http:\/\/.*?\/(.*)$/,"$1");
+	scope.wait(100).done(
+			function() {
+				confirmDialog("<h3 style='text-align:center'>セキュアURLへ変更のお願い--Tomomi</h3>いつもご利用いただきありがとうございます<br>SSL暗号で通信が保護される新URL'https:" + sslSite
+						+ "/'始まりへ移行をお願いします。<br>下記ボタン[OK]で新URLへジャンプします。<br>ブックマークの更新等もお願いいたします。<br><div style='color:red'>【重要】アカウントは引き継がれますが再ログインが必要となります</span>",
+						function() {
+							scope.wait(100).done(function() {
+								location.href = "https://" + sslSite + "/" + location.href.replace(/^http:\/\/.*?\/(.*)$/, "$1");
+							});
+						});
 			});
-		});
+	$.cookie("tomomiRemindGuideSSL", "true", {
+		expires : 2
 	});
-	$.cookie("tomomiRemindGuideSSL", "true", { expires: 2 });
 }

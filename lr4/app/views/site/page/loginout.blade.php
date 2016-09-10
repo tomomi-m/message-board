@@ -1,16 +1,24 @@
 <div name="popupLoginDiv" data-role="popup"
-	class="popupLoginDiv ui-content ui-corner-all" data-history="false" style="width:230px">
-	<span style="margin: 0; font-weight:bold; text-align:center">ユーザー認証</span><span
+	class="popupLoginDiv ui-content ui-corner-all" data-history="false"
+	style="width: 230px">
+	<span style="margin: 0; font-weight: bold; text-align: center">ユーザー認証</span><span
 		style="margin: 0; font-size: 6pt; font-weight: normal">毎回入力ではないのでご理解・ご協力ください。</span>
-		<table><tr>
-			<td style="vertical-align:middle; width:3.5em">お名前</td><td><input style="" type="text" name="userNameInp" value="" data-mini="true" placeholder="お名前" data-theme="a" /></td>
-		</tr></table>
-	<hr/>
+	<table>
+		<tr>
+			<td style="vertical-align: middle; width: 3.5em">お名前</td>
+			<td><input style="" type="text" name="userNameInp" value=""
+				data-mini="true" placeholder="お名前" data-theme="a" /></td>
+		</tr>
+	</table>
+	<hr />
 	<div name="captchaImgDiv"></div>
-	<table><tr>
-		<td style="vertical-align:middle; width:3.5em">上画像内文字</td><td><input style="ime-mode: disabled" type="text" name="captchaInp"
-		value="" data-mini="true" placeholder="↑画像内の文字" data-theme="a" /></td>
-	</tr></table>
+	<table>
+		<tr>
+			<td style="vertical-align: middle; width: 3.5em">上画像内文字</td>
+			<td><input style="ime-mode: disabled" type="text" name="captchaInp"
+				value="" data-mini="true" placeholder="↑画像内の文字" data-theme="a" /></td>
+		</tr>
+	</table>
 	<button type="button" data-theme="b" data-mini="true"
 		onclick="login(this,event)">認証</button>
 </div>
