@@ -7,8 +7,12 @@ class SitePageController extends BaseController {
 	public function getIndex(Site $site, $pageIndex = 'home') {
 		$data = Input::all ();
 		$aroundAtMode = false;
+		$pagingMode = false;
 		if (array_key_exists ( 'around', $data )) {
 			$aroundAtMode = true;
+		}
+		if (array_key_exists ( 'pagingNo', $data )) {
+			$pagingMode = true;
 		}
 		$pageWhere = Page::where ( 'site', $site->id );
 		if ($pageIndex == "index")
@@ -19,26 +23,48 @@ class SitePageController extends BaseController {
 			$pageWhere = $pageWhere->where ( 'id', $pageIndex );
 		}
 		$page = $pageWhere->first ();
-		$childPages = null;
-		$breadCrumb = null;
-		if (! $aroundAtMode) {
-			$childPages = Page::where ( 'site', $site->id )->where ( 'parent', $page->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
+		if (MyBot::isBotRequest ()) {
+			if ($page->isPublic != 'Y') {
+				App::abort ( 404, "Invalid #Page: not public" );
+			}
+			if (! $pagingMode) {
+				return View::make ( 'site.page.botPage', array (
+						'site' => $site,
+						'page' => $page 
+				) );
+			} else {
+				$pagingNo = $data ['pagingNo'];
+				$offset = ($pagingNo - 1) * self::PAGING_LENGTH;
+				$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->orderBy ( 'id' )->skip ( $offset )->take ( self::PAGING_LENGTH )->get ();
+				return View::make ( 'site.page.botMessages', array (
+						'site' => $site,
+						'page' => $page,
+						'messages' => $messages 
+				) );
+			}
+		} else {
+			$childPages = null;
+			$breadCrumb = null;
+			if (! $aroundAtMode && ! $pagingMode) {
+				$childPages = Page::where ( 'site', $site->id )->where ( 'parent', $page->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
+			}
+			$breadCrumb = $this->getBreadCrumbList ( $page );
+			
+			$userName = MySession::getUserName ( $site->id );
+			
+			$siteImage = new SiteImage ();
+			return View::make ( 'site.page.' . (($pageIndex == "home") ? "home" : "page"), array (
+					'site' => $site,
+					'page' => $page,
+					'childPages' => $childPages,
+					'emotions' => $siteImage->getEmotionCatalog ( $site ),
+					'isEditable' => ($pageIndex == "home") ? false : true,
+					'breadCrumb' => $breadCrumb,
+					'version' => MyVersion::VER,
+					'aroundAtMode' => $aroundAtMode,
+					'pagingMode' => $pagingMode 
+			) );
 		}
-		$breadCrumb = $this->getBreadCrumbList ( $page );
-		
-		$userName = MySession::getUserName ( $site->id );
-		
-		$siteImage = new SiteImage ();
-		return View::make ( 'site.page.' . (($pageIndex == "home") ? "home" : "page"), array (
-				'site' => $site,
-				'page' => $page,
-				'childPages' => $childPages,
-				'emotions' => $siteImage->getEmotionCatalog ( $site ),
-				'isEditable' => ($pageIndex == "home") ? false : true,
-				'breadCrumb' => $breadCrumb,
-				'version' => MyVersion::VER,
-				'aroundAtMode' => $aroundAtMode 
-		) );
 	}
 	public function anyGetAllPages(Site $site, $pageIndex) {
 		$allPages = Page::where ( 'site', $site->id )->orderBy ( 'title' )->orderBy ( 'id' )->get ();
@@ -108,6 +134,26 @@ class SitePageController extends BaseController {
 			$ret ['noMoreOlderMessages'] = true;
 		}
 		if (count ( $messagesUpper ) < $takeNewerCount) {
+			$ret ['noMoreNewerMessages'] = true;
+		}
+		return Response::json ( $ret );
+	}
+	public function anyGetMessagesPagingAt(Site $site, $pageIndex = null) {
+		if (! $pageIndex)
+			App::abort ( 404, "Invalid #Page" );
+		$data = Input::all ();
+		$pagingNo = $data ['pagingNo'];
+		$offset = ($pagingNo - 1) * self::PAGING_LENGTH;
+		$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->orderBy ( 'id' )->skip ( $offset )->take ( self::PAGING_LENGTH )->get ()->toArray ();
+		foreach ( $messages as &$message ) {
+			$message ["images"] = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message ["images"] );
+			$message ["files"] = str_replace ( '${siteImage}', Request::getBasePath () . '/image/site/' . $site->id, $message ["files"] );
+		}
+		$ret ['messages'] = $messages;
+		
+		$ret ['authedUserName'] = MySession::getUserName ( $site->id );
+		
+		if (count ( $messages ) < self::PAGING_LENGTH) {
 			$ret ['noMoreNewerMessages'] = true;
 		}
 		return Response::json ( $ret );
@@ -340,7 +386,7 @@ class SitePageController extends BaseController {
 				}
 			}
 			// backup prev page data
-			DB::insert ( 'insert into pagebaks (id,site,title,background,thumbnail,body,body_for_search,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by) select id,site,title,background,thumbnail,body,body_for_search,hasChat,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by from pages where site=? and id=?', array (
+			DB::insert ( 'insert into pagebaks (id,site,title,background,thumbnail,body,body_for_search,hasChat,isPublic,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by) select id,site,title,background,thumbnail,body,body_for_search,hasChat,isPublic,parent,isDefault,editAuth,lastMessage_at,created_at,updated_at,updated_by from pages where site=? and id=?', array (
 					$site->id,
 					$pageIndex 
 			) );
@@ -356,6 +402,7 @@ class SitePageController extends BaseController {
 			$page->body = null;
 		$page->thumbnail = $data ['thumbnail'];
 		$page->hasChat = ($data ['hasChat'] == "Y") ? "Y" : null;
+		$page->isPublic = ($data ['isPublic'] == "Y") ? "Y" : null;
 		try {
 			$this->parsePageBodyImage ( $page );
 			$this->parsePageThumbnailImage ( $page );
@@ -657,6 +704,28 @@ class SitePageController extends BaseController {
 		$filePathAbs = public_path ( Request::getBasePath () . $filePathRel );
 		return Response::download ( $filePathAbs, $filename, array (
 				'content-type' => 'application/octet-stream' 
+		) );
+	}
+	public function getGetSitemap(Site $site, $pageIndex = null) {
+		if (! $pageIndex)
+			App::abort ( 404, "Invalid #Page" );
+		$data = Input::all ();
+		$pageWhere = Page::where ( 'site', $site->id );
+		if ($pageIndex == "index" || $pageIndex == "home") {
+			$pageWhere = $pageWhere->where ( 'isDefault', 'Y' );
+		} else {
+			$pageWhere = $pageWhere->where ( 'id', $pageIndex );
+		}
+		$page = $pageWhere->first ();
+		if ($page->isPublic != 'Y') {
+			App::abort ( 404, "Invalid #Page: not public" );
+		}
+		$page->id = $pageIndex;
+		$messageCount = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->count ();
+		return View::make ( 'site.page.sitemap', array (
+				'site' => $site,
+				'page' => $page,
+				'messageCount' => $messageCount 
 		) );
 	}
 }

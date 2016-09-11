@@ -44,7 +44,7 @@
 				onclick="event.preventDefault();tom.$OP(this, 'popupMenu').popup('close');tom.$OPC(this, 'pageDiv', 'popupLogoutDiv').popup('open');">ログアウト</a></li>
 			<li data-icon=user><a
 				onclick='event.preventDefault();$.mobile.changePage("{{ $page->id}}/edit-profile",{reloadPage :true });'>個人設定</a></li>
-@if (!isset($aroundAtMode) || !$aroundAtMode)
+@if ((!isset($aroundAtMode) || !$aroundAtMode) && (!isset($pagingMode) || !$pagingMode))
 			<li style="padding-top: 0; padding-bottom: 0"
 				data-role="divider" data-theme="a">Page Management</li>
 			<li data-icon="edit"><a

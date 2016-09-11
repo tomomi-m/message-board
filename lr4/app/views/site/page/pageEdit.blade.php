@@ -62,6 +62,12 @@
 			<option value="Y" {{$page->hasChat?"selected":""}}>On</option>
 		</select>
 		<br/>
+		検索エンジン(Google等)に公開
+		<select name="isPublicSelect" id="flip-mini" data-role="slider" data-mini="true">
+			<option value="N">Off</option>
+			<option value="Y" {{$page->isPublic?"selected":""}}>On</option>
+		</select>
+		<br/>
 		<br/>
 @if(isset($parentPage))
 		親ページ <button style="width:20em;text-align:left" data-role="button" name="parentPageBtn" data-icon="gear" data-inline="true" data-mini="true" onclick="popupPageEditSelectParent(event)" data-parentId="{{$parentPage->id}}"><img width="40" src="{{ str_replace('${siteImage}', Request::getBasePath().'/image/site/'. $page->site, $parentPage->thumbnail)}}"/>{{$parentPage->title}}</button>
@@ -72,7 +78,7 @@
 	</div>
 </div>
 <div name="popupParentPageSelectDiv" data-role="popup" data-history="false" data-tolerance="20">
-<div  style="width:20em; height:20em; overflow: auto;">
+<div  style="width:25em; height:20em; overflow: auto;">
 	<ul name="parentPageSelectListUl" data-role="listview" style="margin:1em" data-inset="true" data-initialParent="{{$page->parent}}">
 @if(isset($sitePages))
 	@foreach ($sitePages as $sitePage)

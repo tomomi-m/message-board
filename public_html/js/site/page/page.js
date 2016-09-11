@@ -42,6 +42,7 @@ function pageSetup(event, ui) {
 		var url = document.URL;
 		var param = {};
 		var isAroundMode = false;
+		var isPagingMode = false;
 		var hitMessageId = null;
 		if (document.URL.match(/.+\?around=.+/)) {
 			url = document.URL.replace(/^(.+)\?.+$/, "$1") + "/get-messages-around-at";
@@ -49,6 +50,12 @@ function pageSetup(event, ui) {
 			param.around = hitMessageId;
 			isAroundMode = true;
 			messageInputDiv.empty().append("<b>検索結果表示モードのため投稿はできません。子ページも表示されません。</b><hr>");
+		} else if (document.URL.match(/.+\?pagingNo=.+/)) {
+			url = document.URL.replace(/^(.+)\?.+$/, "$1") + "/get-messages-paging-at";
+			var pagingNo = document.URL.replace(/^.+\?pagingNo=(.+)$/, "$1");
+			param.pagingNo = pagingNo;
+			isPagingMode = true;
+			messageInputDiv.empty().append("<b>ページング表示モードのため投稿はできません。子ページも表示されません。</b><hr>");
 		} else {
 			url += "/get-latest-xmessages"
 		}
@@ -62,6 +69,8 @@ function pageSetup(event, ui) {
 						chatAppendMessagesUl(page, result, "top", true, null, true);
 						$hitLi = messagesUl.find("[user-data-posted-id='" + hitMessageId + "']");
 						$hitLi.css("border", "2px solid red");
+					} else if (isPagingMode) {
+						chatAppendMessagesUl(page, result, "top", true, null, true);
 					} else {
 						chatAppendMessagesUl(page, result, "top", true);
 						chatPollMessage(page);
@@ -74,7 +83,7 @@ function pageSetup(event, ui) {
 			};
 			query();
 		} else {
-			if (!isAroundMode)
+			if (!isAroundMode && !isPagingMode)
 				chatPollMessage(page);
 		}
 	}
@@ -89,7 +98,7 @@ function pageSetup(event, ui) {
 				fileInput.css("display", "");
 			});
 
-	if (messageInputDiv.length && !isAroundMode) {
+	if (messageInputDiv.length && !isAroundMode && !isPagingMode) {
 
 		var messageTxt = tom.$OC(messageInputDiv, "messageTxt");
 		var messageSubmitBtn = tom.$OC(messageInputDiv, "messageSubmitBtn");
@@ -585,6 +594,7 @@ function savePageEdit(self) {
 		var thumbnailImg = tom.$OC(page, "thumbnailImg");
 		var thumbnailSrc = thumbnailImg.attr("src");
 		var hasChatSelect = tom.$OC(page, "hasChatSelect");
+		var isPublicSelect = tom.$OC(page, "isPublicSelect");
 		var pageEditDiv = tom.$OC(page, "pageEdit");
 		var isNewPage = pageEditDiv.attr("data-isNewPage");
 		var parentPageBtn = tom.$OC(page, "parentPageBtn");
@@ -598,6 +608,7 @@ function savePageEdit(self) {
 			thumbnail : thumbnailSrc,
 			body : bodyHtml,
 			hasChat : hasChatSelect.val(),
+			isPublic : isPublicSelect.val(),
 			isNewPage : isNewPage,
 			parent : parentId,
 		};
