@@ -1,7 +1,8 @@
 <?php
 $lastMod= (new DateTime($page->lastMessage_at))->format(DateTime::ATOM);
 ?>
-<?xml version="1.0" encoding="UTF-8"?>
+<?php print '<?xml version="1.0" encoding="UTF-8" ?>'; ?>
+
 <urlset xmlns=”http://www.sitemaps.org/schemas/sitemap/0.9″>
  <url>
   <loc>{{{Request::root()}}}/site/{{{$site->id}}}/{{{$page->id}}}</loc>
