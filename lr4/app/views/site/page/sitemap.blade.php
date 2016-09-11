@@ -7,7 +7,7 @@ $lastMod= (new DateTime($page->lastMessage_at))->format(DateTime::ATOM);
  <url>
   <loc>{{{Request::root()}}}/site/{{{$site->id}}}/{{{$page->id}}}</loc>
   <lastmod>{{{$lastMod}}}</lastmod>
-  <changefreq>dayly</changefreq>
+  <changefreq>daily</changefreq>
  </url>
 @if($page->hasChat =='Y')
 <?php
