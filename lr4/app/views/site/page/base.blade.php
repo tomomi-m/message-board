@@ -46,7 +46,7 @@ $(document).on('click', 'a.anchor', function(e){
 {{HTML::script('/js/jquery.lazyload.js')}}
 {{HTML::script('/js/jquery.cookie.js')}}
 {{HTML::script('/js/tomomi.js')}}
-{{HTML::script('/js/site/page/page.js')}}
+{{HTML::script('/js/site/page/page16091102.js')}}
 {{HTML::script('/js/wysiwyg-editor.js')}}
 {{HTML::script('/js/swfobject.js')}}
 {{HTML::script('/siteg/' . $site->id . '/version-js')}}
