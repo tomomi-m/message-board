@@ -19,7 +19,7 @@ $maxIndex = ceil ( $messageCount / SitePageController::PAGING_LENGTH );
 @if ($i < $maxIndex)
   <changefreq>monthly</changefreq>
 @else
-  <changefreq>dayly</changefreq>
+  <changefreq>daily</changefreq>
   <lastmod>{{{$lastMod}}}</lastmod>
 @endif
  </url>
