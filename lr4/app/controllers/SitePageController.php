@@ -722,10 +722,10 @@ class SitePageController extends BaseController {
 		}
 		$page->id = $pageIndex;
 		$messageCount = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->count ();
-		return View::make ( 'site.page.sitemap', array (
+		return Response::view ( 'site.page.sitemap', array (
 				'site' => $site,
 				'page' => $page,
 				'messageCount' => $messageCount 
-		) );
+		) )->header ( 'Content-Type', 'application/xml' );
 	}
 }

@@ -143,9 +143,9 @@ class SiteController extends BaseController {
 	}
 	public function anyGetSiteIndexes(Site $site) {
 		$pages = Page::where ( 'site', $site->id )->where ( 'isPublic', 'Y' )->orderBy ( 'id', 'desc' )->get ();
-		return View::make ( 'site.siteIndex', array (
+		return Response::view ( 'site.siteIndex', array (
 				'site' => $site,
 				'pages' => $pages 
-		) );
+		) )->header ( 'Content-Type', 'application/xml' );
 	}
 }
