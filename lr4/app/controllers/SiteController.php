@@ -142,7 +142,10 @@ class SiteController extends BaseController {
 		return Response::json ( $ret );
 	}
 	public function anyGetSiteIndexes(Site $site) {
-		$pages = Page::where ( 'site', $site->id )->where ( 'isPublic', 'Y' )->orderBy ( 'id', 'desc' )->get ();
+		if ($site->isPublic != 'Y') {
+			App::abort ( 404, "Invalid #Site: not public" );
+		}
+		$pages = Page::where ( 'site', $site->id )->orderBy ( 'id' )->get ();
 		return Response::view ( 'site.siteIndex', array (
 				'site' => $site,
 				'pages' => $pages 

@@ -9,7 +9,7 @@ $lastMod= (new DateTime($page->lastMessage_at))->format(DateTime::ATOM);
   <lastmod>{{{$lastMod}}}</lastmod>
   <changefreq>daily</changefreq>
  </url>
-@if($page->hasChat =='Y')
+@if($page->hasChat == 'Y' && $page->isPublic == 'Y' && $messageCount > 0)
 <?php
 $maxIndex = ceil ( $messageCount / SitePageController::PAGING_LENGTH );
 ?>

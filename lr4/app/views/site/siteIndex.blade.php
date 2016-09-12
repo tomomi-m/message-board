@@ -3,7 +3,7 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 @foreach ($pages as $page)
  <sitemap>
-  <loc>{{{Request::root()}}}/site/{{{$site->id}}}/{{{$page->id}}}/get-sitemap</loc>
+  <loc>{{{Request::root()}}}/site/{{{$site->id}}}/{{{($page->isDefault=='Y')?"home":$page->id}}}/get-sitemap</loc>
   <lastmod>{{{(new DateTime($page->lastMessage_at))->format(DateTime::ATOM)}}}</lastmod>
  </sitemap>
 @endforeach

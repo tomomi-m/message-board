@@ -24,15 +24,21 @@ class SitePageController extends BaseController {
 		}
 		$page = $pageWhere->first ();
 		if (MyBot::isBotRequest ()) {
-			if ($page->isPublic != 'Y') {
-				App::abort ( 404, "Invalid #Page: not public" );
+			if ($site->isPublic != 'Y') {
+				App::abort ( 404, "Invalid #Site: not public" );
 			}
 			if (! $pagingMode) {
 				return View::make ( 'site.page.botPage', array (
 						'site' => $site,
-						'page' => $page 
+						'page' => $page,
 				) );
 			} else {
+				if ($page->hasChat != 'Y') {
+					App::abort ( 404, "Invalid #Message: not public" );
+				}
+				if ($page->isPublic != 'Y') {
+					App::abort ( 404, "Invalid #Page: not public" );
+				}
 				$pagingNo = $data ['pagingNo'];
 				$offset = ($pagingNo - 1) * self::PAGING_LENGTH;
 				$messages = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->orderBy ( 'id' )->skip ( $offset )->take ( self::PAGING_LENGTH )->get ();
@@ -717,11 +723,12 @@ class SitePageController extends BaseController {
 			$pageWhere = $pageWhere->where ( 'id', $pageIndex );
 		}
 		$page = $pageWhere->first ();
-		if ($page->isPublic != 'Y') {
-			App::abort ( 404, "Invalid #Page: not public" );
+		if ($page->isDefault == 'Y')
+			$page->id = "home";
+		$messageCount = 0;
+		if ($page->hasChat =='Y' && $page->isPublic == 'Y') {
+			$messageCount = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->count ();
 		}
-		$page->id = $pageIndex;
-		$messageCount = Message::where ( 'site', $site->id )->where ( 'page', $pageIndex )->count ();
 		return Response::view ( 'site.page.sitemap', array (
 				'site' => $site,
 				'page' => $page,

@@ -62,7 +62,7 @@
 			<option value="Y" {{$page->hasChat?"selected":""}}>On</option>
 		</select>
 		<br/>
-		検索エンジン(Google等)に公開
+		チャット内容を検索エンジン(Google等)に公開
 		<select name="isPublicSelect" id="flip-mini" data-role="slider" data-mini="true">
 			<option value="N">Off</option>
 			<option value="Y" {{$page->isPublic?"selected":""}}>On</option>
