@@ -288,8 +288,14 @@ function chatAppendMessagesUl(page, result, direction, doControlGetOlderA, messa
 
 						divR.append(divC);
 						divC = $("<div style='padding-right:0em;'/>");
+						var urlPattern = new RegExp('(https?:\\/\\/' + // protocol
+						'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+						'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+						'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+						'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+						'(\\#[-a-z\\d_]*)?)', 'gi'); // fragment locator
 						var messageWithUrl = val.message
-								.replace(/(http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?)/gi,
+								.replace(urlPattern,
 										"<a style='text-decoration: underline; background-color: lawngreen; word-break: break-all;' class='' onclick='openAnotherSite(this)'>$1</a>");
 						divC.append(messageWithUrl).trigger("create");
 						divR.append(divC);
